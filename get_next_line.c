@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include "libft.h"
 
 int		join_checker(char **buf, char **rem, char **line, int i)
 {
