@@ -54,7 +54,7 @@ int fill_map_on_screen(t_all *all)
 			{
 				all->plr->x = x + SCALE / 2;
 				all->plr->y = y + SCALE / 2;
-				all->plr->dir = 1;
+				all->plr->dir = - M_PI_4;
 				all->map[i][j] = 1;
 			}
 			x += SCALE;
@@ -66,7 +66,8 @@ int fill_map_on_screen(t_all *all)
 	return (1);
 }
 
-void	ft_cast_ray(t_all *all)
+
+void	cast_ray(t_all *all)
 {
 	float dir_tmp;
 	float dir_right;
@@ -93,36 +94,59 @@ void	ft_cast_ray(t_all *all)
 	all->plr->dir = dir_tmp;
 }
 
-int key_hook(int keycode, t_all *all)
+float	ray_collision(t_all *all)
 {
-	int i;
-	int j;
-	int x;
-	int y;
+	float dir;
+	float x_plr_tmp;
+	float y_plr_tmp;
 
-	i = 0;
-	j = 0;
-	x = 0;
-	y = 0;
-	if (keycode == 13)
+	dir = 0;
+	x_plr_tmp = all->plr->x;
+	y_plr_tmp = all->plr->y;
+	while (dir < 2 * M_PI)
 	{
-		all->plr->x += cos(all->plr->dir) * 5;
+		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
+		{
+			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1')
+				return (dir);
+			all->plr->x += cos(dir);
+			all->plr->y += sin(dir);
+			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
+		}
+		all->plr->x = x_plr_tmp;
+		all->plr->y = y_plr_tmp;
+		dir += 0.4;
+	}
+	return (-1);
+}
+
+int	key_hook(int keycode, t_all *all)
+{
+	float dir_coll;
+
+	dir_coll = ray_collision(all);
+	printf("%d\n", keycode);
+	if (keycode == 119)
+	{
+		if (fabs(all->plr->x - dir_coll) > M_PI_2)
+			all->plr->x += cos(all->plr->dir) * 5;
 		all->plr->y += sin(all->plr->dir) * 5;
 	}
-	if (keycode == 1)
+	if (keycode == 115)
 	{
 		all->plr->x -= cos(all->plr->dir) * 5;
 		all->plr->y -= sin(all->plr->dir) * 5;
 	}
-	if (keycode == 2)
+	if (keycode == 100)
 		all->plr->dir += 0.15;
-	if (keycode == 0)
+	if (keycode == 97)
 		all->plr->dir -= 0.15;
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
 	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
 	fill_map_on_screen(all);
-	ft_cast_ray(all);
+	cast_ray(all);
+	dir_coll = ray_collision(all);
 	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 	return (1);
 }
@@ -164,7 +188,7 @@ int main(int argc, char **argv)
 	all.win->img = mlx_new_image(all.win->mlx, 900, 600);
 	all.win->addr = mlx_get_data_addr(all.win->img, &all.win->bpp, &all.win->line_len, &all.win->end);
 	fill_map_on_screen(&all);
-	ft_cast_ray(&all);
+	cast_ray(&all);
 	mlx_put_image_to_window(all.win->mlx, all.win->win, all.win->img, 0, 0);
 	mlx_hook(all.win->win, 2, 1L<<0, key_hook, &all);
 	mlx_loop(all.win->mlx);
