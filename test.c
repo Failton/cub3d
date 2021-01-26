@@ -10,16 +10,6 @@ void	my_mlx_pixel_put(t_win *data, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-void	ft_cast_ray(char **map, t_plr ray, t_win *data)
-{
-	while (map[(int)(ray.y / SCALE)][(int)(ray.x / SCALE)] != '1')
-	{
-		ray.x += cos(ray.dir);
-		ray.y += sin(ray.dir);
-		my_mlx_pixel_put(data, ray.x, ray.y, 0x990099);
-	}
-}
-
 void	put_sqr(t_win *data, int x, int y, char smbl)
 {
 	int x_max;
@@ -40,6 +30,101 @@ void	put_sqr(t_win *data, int x, int y, char smbl)
 		}
 		y++;
 	}
+}
+
+int fill_map_on_screen(t_all *all)
+{
+	int i;
+	int j;
+	int x;
+	int y;
+
+	i = 0;
+	j = 0;
+	x = 0;
+	y = 0;
+	while (all->map[i])
+	{
+		x = 0;
+		j = 0;
+		while (all->map[i][j])
+		{
+			put_sqr(all->win, x, y, all->map[i][j]);
+			if (all->map[i][j] == 'N')
+			{
+				all->plr->x = x + SCALE / 2;
+				all->plr->y = y + SCALE / 2;
+				all->plr->dir = 1;
+				all->map[i][j] = 1;
+			}
+			x += SCALE;
+			j++;
+		}
+		y += SCALE;
+		i++;
+	}
+	return (1);
+}
+
+void	ft_cast_ray(t_all *all)
+{
+	float dir_tmp;
+	float dir_right;
+	float x_tmp;
+	float y_tmp;
+
+	dir_tmp = all->plr->dir;
+	dir_right = all->plr->dir + M_PI_4;
+	all->plr->dir = all->plr->dir - M_PI_4;
+	x_tmp = all->plr->x;
+	y_tmp = all->plr->y;
+	while (all->plr->dir <= dir_right)
+	{
+		while (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] != '1')
+		{
+			all->plr->x += cos(all->plr->dir);
+			all->plr->y += sin(all->plr->dir);
+			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0x036BFC);
+		}
+		all->plr->x = x_tmp;
+		all->plr->y = y_tmp;
+		all->plr->dir += 0.001;
+	}
+	all->plr->dir = dir_tmp;
+}
+
+int key_hook(int keycode, t_all *all)
+{
+	int i;
+	int j;
+	int x;
+	int y;
+
+	i = 0;
+	j = 0;
+	x = 0;
+	y = 0;
+	if (keycode == 13)
+	{
+		all->plr->x += cos(all->plr->dir) * 5;
+		all->plr->y += sin(all->plr->dir) * 5;
+	}
+	if (keycode == 1)
+	{
+		all->plr->x -= cos(all->plr->dir) * 5;
+		all->plr->y -= sin(all->plr->dir) * 5;
+	}
+	if (keycode == 2)
+		all->plr->dir += 0.15;
+	if (keycode == 0)
+		all->plr->dir -= 0.15;
+	mlx_destroy_image(all->win->mlx, all->win->img);
+	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
+	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
+	fill_map_on_screen(all);
+	ft_cast_ray(all);
+	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
+	return (1);
 }
 
 char	**parcer(int fd)
@@ -66,46 +151,21 @@ char	**parcer(int fd)
 
 int main(int argc, char **argv)
 {
-	t_win img;
-	t_plr ray;
-	int i;
-	int j;
-	char **map;
+	t_all all;
 	int fd;
-	int x;
-	int y;
 
 	(void)argc;
-	i = 0;
-	j = 0;
-	x = 0;
-	y = 0;
+	all.win = malloc(sizeof(t_win));
+	all.plr = malloc(sizeof(t_plr));
 	fd = open(argv[1], O_RDONLY);
-	map = parcer(fd);
-	img.mlx = mlx_init();
-	img.win = mlx_new_window(img.mlx, 900, 600, "cub3d");
-	img.img = mlx_new_image(img.mlx, 900, 600);
-	img.addr = mlx_get_data_addr(img.img, &img.bpp, &img.line_len, &img.end);
-	while (map[i])
-	{
-		x = 0;
-		j = 0;
-		while (map[i][j])
-		{
-			put_sqr(&img, x, y, map[i][j]);
-			if (map[i][j] == 'N')
-			{
-				ray.x = x + SCALE / 2;
-				ray.y = y + SCALE / 2;
-				ray.dir = -1.5;
-			}
-			x += SCALE;
-			j++;
-		}
-		y += SCALE;
-		i++;
-	}
-	ft_cast_ray(map, ray, &img);
-	mlx_put_image_to_window(img.mlx, img.win, img.img, 0, 0);
-	mlx_loop(img.mlx);
+	all.map = parcer(fd);
+	all.win->mlx = mlx_init();
+	all.win->win = mlx_new_window(all.win->mlx, 900, 600, "cub3d");
+	all.win->img = mlx_new_image(all.win->mlx, 900, 600);
+	all.win->addr = mlx_get_data_addr(all.win->img, &all.win->bpp, &all.win->line_len, &all.win->end);
+	fill_map_on_screen(&all);
+	ft_cast_ray(&all);
+	mlx_put_image_to_window(all.win->mlx, all.win->win, all.win->img, 0, 0);
+	mlx_hook(all.win->win, 2, 1L<<0, key_hook, &all);
+	mlx_loop(all.win->mlx);
 }
