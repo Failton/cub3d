@@ -18,7 +18,7 @@
 # include <fcntl.h>
 # include "get_next_line.h"
 
-# define SCALE 20 // условный размер каждого квадратика в карте
+# define SCALE 25 // условный размер каждого квадратика в карте
 
 typedef struct	s_win //структура для окна
 {

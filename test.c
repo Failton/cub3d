@@ -94,7 +94,37 @@ void	cast_ray(t_all *all)
 	all->plr->dir = dir_tmp;
 }
 
-float	ray_collision(t_all *all)
+/* float	ray_collision(t_all *all) */
+/* { */
+/* 	float dir; */
+/* 	float x_plr_tmp; */
+/* 	float y_plr_tmp; */
+/*  */
+/* 	dir = 0; */
+/* 	x_plr_tmp = all->plr->x; */
+/* 	y_plr_tmp = all->plr->y; */
+/* 	while (dir < 2 * M_PI) */
+/* 	{ */
+/* 		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8) */
+/* 		{ */
+/* 			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1') */
+/* 			{ */
+/* 				all->plr->x = x_plr_tmp; */
+/* 				all->plr->y = y_plr_tmp; */
+/* 				return (dir); */
+/* 			} */
+/* 			all->plr->x += cos(dir); */
+/* 			all->plr->y += sin(dir); */
+/* 			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000); */
+/* 		} */
+/* 		all->plr->x = x_plr_tmp; */
+/* 		all->plr->y = y_plr_tmp; */
+/* 		dir += 0.4; */
+/* 	} */
+/* 	return (-1); */
+/* } */
+
+int	ray_collision(t_all *all)
 {
 	float dir;
 	float x_plr_tmp;
@@ -108,7 +138,11 @@ float	ray_collision(t_all *all)
 		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
 		{
 			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1')
+			{
+				all->plr->x = x_plr_tmp;
+				all->plr->y = y_plr_tmp;
 				return (dir);
+			}
 			all->plr->x += cos(dir);
 			all->plr->y += sin(dir);
 			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
@@ -125,12 +159,13 @@ int	key_hook(int keycode, t_all *all)
 	float dir_coll;
 
 	dir_coll = ray_collision(all);
-	printf("%d\n", keycode);
+//	printf("%d - ", keycode);
 	if (keycode == 119)
 	{
-		if (fabs(all->plr->x - dir_coll) > M_PI_2)
-			all->plr->x += cos(all->plr->dir) * 5;
-		all->plr->y += sin(all->plr->dir) * 5;
+	//	printf("%f\n", fabs(all->plr->x - dir_coll));
+		if (fabs(all->plr->dir - dir_coll) > M_PI_2)
+			all->plr->x += cos(all->plr->dir) * 2;
+		all->plr->y += sin(all->plr->dir) * 2;
 	}
 	if (keycode == 115)
 	{
