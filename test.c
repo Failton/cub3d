@@ -54,7 +54,7 @@ int fill_map_on_screen(t_all *all)
 			{
 				all->plr->x = x + SCALE / 2;
 				all->plr->y = y + SCALE / 2;
-				all->plr->dir = - M_PI_4;
+				all->plr->dir = M_PI_4;
 				all->map[i][j] = 1;
 			}
 			x += SCALE;
@@ -126,55 +126,58 @@ void	cast_ray(t_all *all)
 
 int	ray_collision(t_all *all)
 {
-	float dir;
+	float dir_left;
+	float dir_right;
 	float x_plr_tmp;
 	float y_plr_tmp;
+	int	i;
 
-	dir = 0;
+	i = 0;
+	dir_left = all->plr->dir - 0.2;
+	dir_right = all->plr->dir + 0.2;
 	x_plr_tmp = all->plr->x;
 	y_plr_tmp = all->plr->y;
-	while (dir < 2 * M_PI)
+	while (pow(all->plr->x - x_plr_tmp, 2) + pow(all->plr->y - y_plr_tmp, 2) <= 144)
 	{
-		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
+		if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1' && fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
 		{
-			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1')
-			{
-				all->plr->x = x_plr_tmp;
-				all->plr->y = y_plr_tmp;
-				return (dir);
-			}
-			all->plr->x += cos(dir);
-			all->plr->y += sin(dir);
-			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
+			all->plr->x = x_plr_tmp;
+			all->plr->y = y_plr_tmp;
+			i++;
+			break;
 		}
-		all->plr->x = x_plr_tmp;
-		all->plr->y = y_plr_tmp;
-		dir += 0.4;
+		all->plr->x += cos(all->plr->dir);
+		all->plr->y += sin(all->plr->dir);
+		my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
 	}
-	return (-1);
+	all->plr->x = x_plr_tmp;
+	all->plr->y = y_plr_tmp;
+	return (i);
 }
 
 int	key_hook(int keycode, t_all *all)
 {
 	float dir_coll;
+	int i;
 
-	dir_coll = ray_collision(all);
+	i = ray_collision(all);
+//	dir_coll = ray_collision(all);
 //	printf("%d - ", keycode);
-	if (keycode == 119)
+	if (keycode == 13)
 	{
 	//	printf("%f\n", fabs(all->plr->x - dir_coll));
-		if (fabs(all->plr->dir - dir_coll) > M_PI_2)
+		if (i == 0)
 			all->plr->x += cos(all->plr->dir) * 2;
 		all->plr->y += sin(all->plr->dir) * 2;
 	}
-	if (keycode == 115)
+	if (keycode == 1)
 	{
 		all->plr->x -= cos(all->plr->dir) * 5;
 		all->plr->y -= sin(all->plr->dir) * 5;
 	}
-	if (keycode == 100)
+	if (keycode == 2)
 		all->plr->dir += 0.15;
-	if (keycode == 97)
+	if (keycode == 0)
 		all->plr->dir -= 0.15;
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
