@@ -42,6 +42,7 @@ typedef struct	s_plr //структура для игрока и луча
 	float		x;
 	float		y;
 	float		dir;
+	float		ray_dir;
 	float		start;
 	float		end;
 }				  t_plr;

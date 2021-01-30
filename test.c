@@ -66,106 +66,74 @@ int fill_map_on_screen(t_all *all)
 	return (1);
 }
 
+void	put_line(t_all *all, int i, float x, float y)
+{
+	float distance;
+	float line;
+	float black;
+	int j;
+	int color = 0x0040FF;
+
+	j = 0;
+	distance = sqrt(x * x + y * y) * cos(all->plr->ray_dir - all->plr->dir);
+	printf("%f\n", distance);
+	if (distance >= 20)
+		line = 12000 / distance;
+	else
+		line = 600;
+	black = (600 - line) / 2;
+	while (j < black)
+	{
+		my_mlx_pixel_put(all->win, i, j, 0x000000);
+		j++;
+	}
+	while (j < line + black)
+	{
+		color = 0x0040FF - 20 * (int)(distance / 60);
+		my_mlx_pixel_put(all->win, i, j, color);
+		j++;
+	}
+	while (j < black * 2 + line)
+	{
+		my_mlx_pixel_put(all->win, i, j, 0x665e4f);
+		j++;
+	}
+}
 
 void	cast_ray(t_all *all)
 {
-	float dir_tmp;
 	float dir_right;
 	float x_tmp;
 	float y_tmp;
+	int i;
 
-	dir_tmp = all->plr->dir;
-	dir_right = all->plr->dir + M_PI_4;
-	all->plr->dir = all->plr->dir - M_PI_4;
+	i = 0;
+	dir_right = all->plr->dir + M_PI / 6;
+	all->plr->ray_dir = all->plr->dir - M_PI / 6;
 	x_tmp = all->plr->x;
 	y_tmp = all->plr->y;
-	while (all->plr->dir <= dir_right)
+	while (all->plr->ray_dir <= dir_right && i < 900)
 	{
 		while (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] != '1')
 		{
-			all->plr->x += cos(all->plr->dir);
-			all->plr->y += sin(all->plr->dir);
-			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0x036BFC);
+			all->plr->x += cos(all->plr->ray_dir);
+			all->plr->y += sin(all->plr->ray_dir);
+	//		my_mlx_pixel_put(all->win, all->plr->x, all->ray_plr->y, 0x036BFC);
 		}
+		put_line(all, i, fabs(all->plr->x - x_tmp), fabs(all->plr->y - y_tmp));
 		all->plr->x = x_tmp;
 		all->plr->y = y_tmp;
-		all->plr->dir += 0.001;
+		all->plr->ray_dir += M_PI / 3 / 900;
+		i++;
 	}
-	all->plr->dir = dir_tmp;
-}
-
-/* float	ray_collision(t_all *all) */
-/* { */
-/* 	float dir; */
-/* 	float x_plr_tmp; */
-/* 	float y_plr_tmp; */
-/*  */
-/* 	dir = 0; */
-/* 	x_plr_tmp = all->plr->x; */
-/* 	y_plr_tmp = all->plr->y; */
-/* 	while (dir < 2 * M_PI) */
-/* 	{ */
-/* 		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8) */
-/* 		{ */
-/* 			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1') */
-/* 			{ */
-/* 				all->plr->x = x_plr_tmp; */
-/* 				all->plr->y = y_plr_tmp; */
-/* 				return (dir); */
-/* 			} */
-/* 			all->plr->x += cos(dir); */
-/* 			all->plr->y += sin(dir); */
-/* 			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000); */
-/* 		} */
-/* 		all->plr->x = x_plr_tmp; */
-/* 		all->plr->y = y_plr_tmp; */
-/* 		dir += 0.4; */
-/* 	} */
-/* 	return (-1); */
-/* } */
-
-int	ray_collision(t_all *all)
-{
-	float dir;
-	float x_plr_tmp;
-	float y_plr_tmp;
-
-	dir = 0;
-	x_plr_tmp = all->plr->x;
-	y_plr_tmp = all->plr->y;
-	while (dir < 2 * M_PI)
-	{
-		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
-		{
-			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1')
-			{
-				all->plr->x = x_plr_tmp;
-				all->plr->y = y_plr_tmp;
-				return (dir);
-			}
-			all->plr->x += cos(dir);
-			all->plr->y += sin(dir);
-			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
-		}
-		all->plr->x = x_plr_tmp;
-		all->plr->y = y_plr_tmp;
-		dir += 0.4;
-	}
-	return (-1);
 }
 
 int	key_hook(int keycode, t_all *all)
 {
-	float dir_coll;
-
-	dir_coll = ray_collision(all);
-//	printf("%d - ", keycode);
 	if (keycode == 119)
 	{
-	//	printf("%f\n", fabs(all->plr->x - dir_coll));
-		if (fabs(all->plr->dir - dir_coll) > M_PI_2)
-			all->plr->x += cos(all->plr->dir) * 2;
-		all->plr->y += sin(all->plr->dir) * 2;
+		all->plr->x += cos(all->plr->dir) * 5;
+		all->plr->y += sin(all->plr->dir) * 5;
 	}
 	if (keycode == 115)
 	{
@@ -179,9 +147,8 @@ int	key_hook(int keycode, t_all *all)
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
 	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
-	fill_map_on_screen(all);
+//	fill_map_on_screen(all);
 	cast_ray(all);
-	dir_coll = ray_collision(all);
 	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 	return (1);
 }
