@@ -2,30 +2,42 @@
 #include "cub3d.h"
 #include "libft.h"
 
-void	my_mlx_pixel_put(t_win *data, int x, int y, int color)
+int		create_trgb(int t, int r, int g, int b)
+{
+	return(t << 24 | r << 16 | g << 8 | b);
+}
+
+unsigned int	my_mlx_get_color(t_win *data, int x, int y)
 {
 	char    *dst;
 
 	dst = data->addr + (y * data->line_len + x * (data->bpp / 8));
+	return (*(unsigned int *)dst);
+}
+
+void	my_mlx_pixel_put(t_win *all, int x, int y, int color)
+{
+	char    *dst;
+
+	dst = all->addr + (y * all->line_len + x * (all->bpp / 8));
 	*(unsigned int*)dst = color;
 }
 
-void	put_sqr(t_win *data, int x, int y, char smbl)
+void	put_sqr(t_win *data, int x, int y, int color, int scl)
 {
 	int x_max;
 	int y_max;
 	int x_tmp;
 
-	x_max = x + SCALE;
-	y_max = y + SCALE;
+	x_max = x + scl;
+	y_max = y + scl;
 	x_tmp = x;
-	while (y < y_max)
+	while (y <= y_max)
 	{
 		x = x_tmp;
-		while (x < x_max)
+		while (x <= x_max)
 		{
-			if (smbl == '1')
-				my_mlx_pixel_put(data, x, y, 0xFFFFFF);
+			my_mlx_pixel_put(data, x, y, color);
 			x++;
 		}
 		y++;
@@ -49,12 +61,11 @@ int fill_map_on_screen(t_all *all)
 		j = 0;
 		while (all->map[i][j])
 		{
-			put_sqr(all->win, x, y, all->map[i][j]);
 			if (all->map[i][j] == 'N')
 			{
 				all->plr->x = x + SCALE / 2;
 				all->plr->y = y + SCALE / 2;
-				all->plr->dir = M_PI_4;
+				all->plr->dir = 0;
 				all->map[i][j] = 1;
 			}
 			x += SCALE;
@@ -66,37 +77,59 @@ int fill_map_on_screen(t_all *all)
 	return (1);
 }
 
+
+
 void	put_line(t_all *all, int i, float x, float y)
 {
 	float distance;
 	float line;
 	float black;
-	int j;
+	int k;
 	int color = 0x0040FF;
 
-	j = 0;
+	/* t_win	texture; */
+	/* char    *relative_path = "./test.xpm"; */
+	/* int     img_width; */
+	/* int     img_height; */
+	/* int		i; */
+	/* int		j; */
+	/* int		color; */
+	/* float 	scl; */
+	/* i = 0; */
+	/* j = 0; */
+	/* texture.img = mlx_xpm_file_to_image(all.win->mlx, relative_path, &img_width, &img_height); */
+	/* texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_len, &texture.end); */
+
+	k = 0;
 	distance = sqrt(x * x + y * y) * cos(all->plr->ray_dir - all->plr->dir);
-	printf("%f\n", distance);
 	if (distance >= 20)
-		line = 12000 / distance;
+		line = 20 * 600 / distance;
 	else
 		line = 600;
 	black = (600 - line) / 2;
-	while (j < black)
+	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, j, 0x000000);
-		j++;
+		my_mlx_pixel_put(all->win, i, k, 0x000000);
+		k++;
 	}
-	while (j < line + black)
+	while (k < line + black)
 	{
-		color = 0x0040FF - 20 * (int)(distance / 60);
-		my_mlx_pixel_put(all->win, i, j, color);
-		j++;
+		color =  0x0040FF - 20 * (int)(distance / 60);
+		my_mlx_pixel_put(all->win, i, k, color);
+		//	printf("%f\n", all->plr->y);
+		if ((all->plr->x - (int)all->plr->x / SCALE * SCALE < 0.1) && all->plr->ray_dir > - M_PI_2 && all->plr->ray_dir < M_PI_2)
+			my_mlx_pixel_put(all->win, i, k, 0xC800FF);
+		else
+		{
+			color =  0x0040FF - 20 * (int)(distance / 60);
+			my_mlx_pixel_put(all->win, i, k, color);
+		}
+		k++;
 	}
-	while (j < black * 2 + line)
+	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, j, 0x665e4f);
-		j++;
+		my_mlx_pixel_put(all->win, i, k, 0x665E4F);
+		k++;
 	}
 }
 
@@ -116,106 +149,29 @@ void	cast_ray(t_all *all)
 	{
 		while (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] != '1')
 		{
-			all->plr->x += cos(all->plr->ray_dir);
-			all->plr->y += sin(all->plr->ray_dir);
-	//		my_mlx_pixel_put(all->win, all->plr->x, all->ray_plr->y, 0x036BFC);
+			all->plr->x += 0.1 * cos(all->plr->ray_dir);
+			all->plr->y += 0.1 * sin(all->plr->ray_dir);
+			//		my_mlx_pixel_put(all->win, all->plr->x, all->ray_plr->y, 0x036BFC);
 		}
 		put_line(all, i, fabs(all->plr->x - x_tmp), fabs(all->plr->y - y_tmp));
 		all->plr->x = x_tmp;
 		all->plr->y = y_tmp;
-<<<<<<< HEAD
 		all->plr->ray_dir += M_PI / 3 / 900;
 		i++;
 	}
-=======
-		all->plr->dir += 0.001;
-	}
-	all->plr->dir = dir_tmp;
-}
-
-/* float	ray_collision(t_all *all) */
-/* { */
-/* 	float dir; */
-/* 	float x_plr_tmp; */
-/* 	float y_plr_tmp; */
-/*  */
-/* 	dir = 0; */
-/* 	x_plr_tmp = all->plr->x; */
-/* 	y_plr_tmp = all->plr->y; */
-/* 	while (dir < 2 * M_PI) */
-/* 	{ */
-/* 		while (fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8) */
-/* 		{ */
-/* 			if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1') */
-/* 			{ */
-/* 				all->plr->x = x_plr_tmp; */
-/* 				all->plr->y = y_plr_tmp; */
-/* 				return (dir); */
-/* 			} */
-/* 			all->plr->x += cos(dir); */
-/* 			all->plr->y += sin(dir); */
-/* 			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000); */
-/* 		} */
-/* 		all->plr->x = x_plr_tmp; */
-/* 		all->plr->y = y_plr_tmp; */
-/* 		dir += 0.4; */
-/* 	} */
-/* 	return (-1); */
-/* } */
-
-int	ray_collision(t_all *all)
-{
-	float dir_left;
-	float dir_right;
-	float x_plr_tmp;
-	float y_plr_tmp;
-	int	i;
-
-	i = 0;
-	dir_left = all->plr->dir - 0.2;
-	dir_right = all->plr->dir + 0.2;
-	x_plr_tmp = all->plr->x;
-	y_plr_tmp = all->plr->y;
-	while (pow(all->plr->x - x_plr_tmp, 2) + pow(all->plr->y - y_plr_tmp, 2) <= 144)
-	{
-		if (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] == '1' && fabs(all->plr->x - x_plr_tmp) <= 8 && fabs(all->plr->y - y_plr_tmp) <= 8)
-		{
-			all->plr->x = x_plr_tmp;
-			all->plr->y = y_plr_tmp;
-			i++;
-			break;
-		}
-		all->plr->x += cos(all->plr->dir);
-		all->plr->y += sin(all->plr->dir);
-		my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0xFF0000);
-	}
-	all->plr->x = x_plr_tmp;
-	all->plr->y = y_plr_tmp;
-	return (i);
->>>>>>> b2c9c2d15f6c21733cd408a954fbdb393f1a5c09
 }
 
 int	key_hook(int keycode, t_all *all)
 {
-<<<<<<< HEAD
 	if (keycode == 119)
 	{
 		all->plr->x += cos(all->plr->dir) * 5;
 		all->plr->y += sin(all->plr->dir) * 5;
-=======
-	float dir_coll;
-	int i;
-
-	i = ray_collision(all);
-//	dir_coll = ray_collision(all);
-//	printf("%d - ", keycode);
+	}
 	if (keycode == 13)
 	{
-	//	printf("%f\n", fabs(all->plr->x - dir_coll));
-		if (i == 0)
-			all->plr->x += cos(all->plr->dir) * 2;
-		all->plr->y += sin(all->plr->dir) * 2;
->>>>>>> b2c9c2d15f6c21733cd408a954fbdb393f1a5c09
+		all->plr->x += cos(all->plr->dir) * 5;
+		all->plr->y += sin(all->plr->dir) * 5;
 	}
 	if (keycode == 1)
 	{
@@ -226,6 +182,7 @@ int	key_hook(int keycode, t_all *all)
 		all->plr->dir += 0.15;
 	if (keycode == 0)
 		all->plr->dir -= 0.15;
+//	printf("%f\n", all->plr->dir);
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
 	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
