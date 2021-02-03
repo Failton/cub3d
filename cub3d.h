@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:18:43 by pruthann          #+#    #+#             */
-/*   Updated: 2021/01/31 17:14:45 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/02/03 13:10:01 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <fcntl.h>
 # include "get_next_line.h"
 
-# define SCALE 16 // условный размер каждого квадратика в карте
+# define SCALE 20 // условный размер каждого квадратика в карте
 
 typedef struct	s_win //структура для окна
 {
@@ -33,8 +33,9 @@ typedef struct	s_win //структура для окна
 
 typedef struct	s_point // структура для точки
 {
-	int			x;
-	int			y;
+	float			x;
+	float			y;
+	float			len;
 }				  t_point;
 
 typedef struct	s_plr //структура для игрока и луча
