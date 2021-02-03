@@ -23,21 +23,22 @@ void	my_mlx_pixel_put(t_win *all, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-void	put_sqr(t_win *data, int x, int y, int color, int scl)
+void	put_sqr(t_win *data, int x, int y, char smbl)
 {
 	int x_max;
 	int y_max;
 	int x_tmp;
 
-	x_max = x + scl;
-	y_max = y + scl;
+	x_max = x + SCALE;
+	y_max = y + SCALE;
 	x_tmp = x;
-	while (y <= y_max)
+	while (y < y_max)
 	{
 		x = x_tmp;
-		while (x <= x_max)
+		while (x < x_max)
 		{
-			my_mlx_pixel_put(data, x, y, color);
+			if (smbl == '1')
+				my_mlx_pixel_put(data, x, y, 0xFFFFFF);
 			x++;
 		}
 		y++;
@@ -61,6 +62,7 @@ int fill_map_on_screen(t_all *all)
 		j = 0;
 		while (all->map[i][j])
 		{
+			put_sqr(all->win, x, y, all->map[i][j]);
 			if (all->map[i][j] == 'N')
 			{
 				all->plr->x = x + SCALE / 2;
@@ -86,19 +88,6 @@ void	put_line(t_all *all, int i, float x, float y)
 	float black;
 	int k;
 	int color = 0x0040FF;
-
-	/* t_win	texture; */
-	/* char    *relative_path = "./test.xpm"; */
-	/* int     img_width; */
-	/* int     img_height; */
-	/* int		i; */
-	/* int		j; */
-	/* int		color; */
-	/* float 	scl; */
-	/* i = 0; */
-	/* j = 0; */
-	/* texture.img = mlx_xpm_file_to_image(all.win->mlx, relative_path, &img_width, &img_height); */
-	/* texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_len, &texture.end); */
 
 	k = 0;
 	distance = sqrt(x * x + y * y) * cos(all->plr->ray_dir - all->plr->dir);
@@ -136,26 +125,28 @@ void	put_line(t_all *all, int i, float x, float y)
 void	cast_ray(t_all *all)
 {
 	float dir_right;
-	float x_tmp;
-	float y_tmp;
+	float ax;
+	float ay;
 	int i;
 
 	i = 0;
 	dir_right = all->plr->dir + M_PI / 6;
+	ax = all->plr->x;
 	all->plr->ray_dir = all->plr->dir - M_PI / 6;
-	x_tmp = all->plr->x;
-	y_tmp = all->plr->y;
 	while (all->plr->ray_dir <= dir_right && i < 900)
 	{
+		/* горизонтальные пересечения */
+		if (all->plr->ray_dir > - M_PI && all->plr->ray_dir < 0)
+			ay = (int)(all->plr->y / SCALE) * SCALE - 1;
+		else
+			ay = (int)(all->plr->y / SCALE) * SCALE + SCALE;
+		ax += (all->plr->y - ay) / tan(all->plr->ray_dir);
 		while (all->map[(int)(all->plr->y / SCALE)][(int)(all->plr->x / SCALE)] != '1')
 		{
-			all->plr->x += 0.1 * cos(all->plr->ray_dir);
-			all->plr->y += 0.1 * sin(all->plr->ray_dir);
-			//		my_mlx_pixel_put(all->win, all->plr->x, all->ray_plr->y, 0x036BFC);
+
+			my_mlx_pixel_put(all->win, all->plr->x, all->plr->y, 0x036BFC);
 		}
-		put_line(all, i, fabs(all->plr->x - x_tmp), fabs(all->plr->y - y_tmp));
-		all->plr->x = x_tmp;
-		all->plr->y = y_tmp;
+	//	put_line(all, i, fabs(all->plr->x - x_tmp), fabs(all->plr->y - y_tmp));
 		all->plr->ray_dir += M_PI / 3 / 900;
 		i++;
 	}
@@ -168,25 +159,19 @@ int	key_hook(int keycode, t_all *all)
 		all->plr->x += cos(all->plr->dir) * 5;
 		all->plr->y += sin(all->plr->dir) * 5;
 	}
-	if (keycode == 13)
-	{
-		all->plr->x += cos(all->plr->dir) * 5;
-		all->plr->y += sin(all->plr->dir) * 5;
-	}
-	if (keycode == 1)
+	if (keycode == 115)
 	{
 		all->plr->x -= cos(all->plr->dir) * 5;
 		all->plr->y -= sin(all->plr->dir) * 5;
 	}
-	if (keycode == 2)
+	if (keycode == 100)
 		all->plr->dir += 0.15;
-	if (keycode == 0)
+	if (keycode == 97)
 		all->plr->dir -= 0.15;
-//	printf("%f\n", all->plr->dir);
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
 	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
-//	fill_map_on_screen(all);
+	fill_map_on_screen(all);
 	cast_ray(all);
 	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 	return (1);
