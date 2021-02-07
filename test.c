@@ -55,7 +55,7 @@ int fill_map_on_screen(t_all *all)
 	i = 0;
 	j = 0;
 	x = 0;
-	y = 0;
+	y = 0;		
 	while (all->map[i])
 	{
 		x = 0;
@@ -67,7 +67,7 @@ int fill_map_on_screen(t_all *all)
 			{
 				all->plr->x = x + SCALE / 2;
 				all->plr->y = y + SCALE / 2;
-				all->plr->dir = M_PI_4;
+				all->plr->dir = M_PI;
 				all->map[i][j] = '0';
 			}
 			x += SCALE;
@@ -79,8 +79,6 @@ int fill_map_on_screen(t_all *all)
 	return (1);
 }
 
-
-
 void	put_line(t_all *all, int i, float x, float y)
 {
 	float distance;
@@ -90,7 +88,9 @@ void	put_line(t_all *all, int i, float x, float y)
 	int color = 0x0040FF;
 
 	k = 0;
-	distance = sqrt(x * x + y * y) * cos(all->plr->ray_dir - all->plr->dir);
+	/* distance = sqrt(x * x + y * y) * cos(all->plr->ray_start - all->plr->dir); */
+	distance = sqrt(x * x + y * y);
+	/* distance = sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)); */
 	if (distance >= 20)
 		line = 20 * 600 / distance;
 	else
@@ -105,14 +105,6 @@ void	put_line(t_all *all, int i, float x, float y)
 	{
 		color =  0x0040FF - 20 * (int)(distance / 60);
 		my_mlx_pixel_put(all->win, i, k, color);
-		//	printf("%f\n", all->plr->y);
-		if ((all->plr->x - (int)all->plr->x / SCALE * SCALE < 0.1) && all->plr->ray_dir > - M_PI_2 && all->plr->ray_dir < M_PI_2)
-			my_mlx_pixel_put(all->win, i, k, 0xC800FF);
-		else
-		{
-			color =  0x0040FF - 20 * (int)(distance / 60);
-			my_mlx_pixel_put(all->win, i, k, color);
-		}
 		k++;
 	}
 	while (k < black * 2 + line)
@@ -129,13 +121,12 @@ void	horizont_point(t_all *all, t_point *point)
 
 	temp_x = point->x;
 	temp_y = point->y;
-	/* горизонтальные пересечения */
-	if (all->plr->ray_dir > - M_PI && all->plr->ray_dir < 0)
-		point->y = (int)(temp_y / SCALE) * SCALE - 1;
+	if ((all->plr->ray_start >= - M_PI && all->plr->ray_start <= 0) || (all->plr->ray_start >= M_PI && all->plr->ray_start <= 3 * M_PI_2))
+		point->y = (int)(temp_y / SCALE) * SCALE - 0.001;
 	else
 		point->y = (int)(temp_y / SCALE) * SCALE + SCALE;
-	point->x = temp_x + (temp_y - point->y) / tan(all->plr->ray_dir);
-	point->len =  sqrt(pow((temp_x - point->x), 2) + pow((temp_y - point->y), 2));
+	point->x = temp_x - (temp_y - point->y) / tan(all->plr->ray_start);
+	point->len =  sqrt(pow((all->plr->x - point->x), 2) + pow((all->plr->y - point->y), 2));
 }
 
 void	vertical_point(t_all *all, t_point *point)	
@@ -145,13 +136,12 @@ void	vertical_point(t_all *all, t_point *point)
 
 	temp_x = point->x;
 	temp_y = point->y;
-	/* вертикальные пересечения */
-	if (all->plr->ray_dir > - M_PI_2 && all->plr->ray_dir < M_PI_2)
+	if ((all->plr->ray_start >= - M_PI_2 && all->plr->ray_start <= M_PI_2) || (all->plr->ray_start <= - 3 * M_PI_2 && all->plr->ray_start >= - 2 * M_PI))
 		point->x = (int)(temp_x / SCALE) * SCALE + SCALE;
 	else
-		point->x = (int)(temp_x / SCALE) * SCALE - 1;
-	point->y = temp_y + (temp_x - point->x) * tan(all->plr->ray_dir);
-	point->len =  sqrt(pow((temp_x - point->x), 2) + pow((temp_y - point->y), 2));
+		point->x = (int)(temp_x / SCALE) * SCALE - 0.001;
+	point->y = temp_y - (temp_x - point->x) * tan(all->plr->ray_start);
+	point->len =  sqrt(pow((all->plr->x - point->x), 2) + pow((all->plr->y - point->y), 2));
 }
 
 void	cast_ray(t_all *all)
@@ -160,97 +150,76 @@ void	cast_ray(t_all *all)
 	t_point point_vert;
 	float x;
 	float y;
-	/* float dir_right; */
+	int i;
 
+	i = 0;
 	point_hor.x = all->plr->x;
 	point_hor.y = all->plr->y;
 	point_vert.x = all->plr->x;
 	point_vert.y = all->plr->y;
-	/* dir_right = all->plr->dir + M_PI / 6; */
-	/* all->plr->ray_dir = all->plr->dir - M_PI / 6; */
-	all->plr->ray_dir = all->plr->dir;
+	all->plr->ray_end = all->plr->dir + M_PI / 6;
+	all->plr->ray_start = all->plr->dir - M_PI / 6;
 	x = all->plr->x;
 	y = all->plr->y;
-	horizont_point(all, &point_hor);
-	vertical_point(all, &point_vert);
-	/* while (all->plr->ray_dir <= dir_right) */
-	/* { */
-	while (all->map[(int)(y / SCALE)][(int)(x / SCALE)] != '1')
+	while (all->plr->ray_start <= all->plr->ray_end && i < 900)
 	{
-		printf("%f %f %f %f\n", point_vert.len, point_hor.len, x, y);
-		if (point_hor.len == point_vert.len)
+		horizont_point(all, &point_hor);
+		vertical_point(all, &point_vert);
+		while (all->map[(int)(y / SCALE)][(int)(x / SCALE)] != '1')
 		{
-			all->plr->ray_dir += 0.001;
-			horizont_point(all, &point_hor);
-			vertical_point(all, &point_vert);
+		//	my_mlx_pixel_put(all->win, x, y, 0x182ded);
+			if (point_hor.len < point_vert.len)
+			{
+				x = point_hor.x;
+				y = point_hor.y;
+				horizont_point(all, &point_hor);
+			}
+			else
+			{
+				x = point_vert.x;
+				y = point_vert.y;
+				vertical_point(all, &point_vert);
+			}
 		}
-		else if (point_hor.len < point_vert.len)
-		{
-			x = point_hor.x;
-			y = point_hor.y;
-			horizont_point(all, &point_hor);
-		}
-		else
-		{
-			x = point_vert.x;
-			y = point_vert.y;
-			vertical_point(all, &point_vert);
-		}
+		put_line(all, i, fabs(all->plr->x - x), fabs(all->plr->y - y));
+		/* put_line(all, i, x, y); */
+		i++;
+		//	my_mlx_pixel_put(all->win, x, y, 0xFF0000);
+		all->plr->ray_start += M_PI / 3 / 900;
+		x = all->plr->x;
+		y = all->plr->y;
+		point_hor.x = all->plr->x;
+		point_hor.y = all->plr->y;
+		point_vert.x = all->plr->x;
+		point_vert.y = all->plr->y;
 	}
-	printf("%f %f %f %f\n", point_vert.len, point_hor.len, x, y);
-	my_mlx_pixel_put(all->win, x, y, 0xFF0000);
-	/* 	all->plr->ray_dir += M_PI / 3 / 600; */
-	/* 	x = all->plr->x; */
-	/* 	y = all->plr->y; */
-	/* 	point_hor.x = all->plr->x; */
-	/* 	point_hor.y = all->plr->y; */
-	/* 	point_vert.x = all->plr->x; */
-	/* 	point_vert.y = all->plr->y; */
-	/* } */
-	//horizont_point(all, &point_hor);
-	//vertical_point(all, &point_vert);
 }
-
-/* void	cast_ray(t_all *all) */
-/* { */
-/* 	t_point point_hor; */
-/* 	t_point point_vert; */
-/* 	float dir_right; */
-/* 	 */
-/* 	point_hor.x = 0; */
-/* 	point_hor.y = 0; */
-/* 	dir_right = all->plr->dir + M_PI / 6; */
-/* 	all->plr->ray_dir = all->plr->dir - M_PI / 6; */
-/* 	while (all->plr->ray_dir <= dir_right) */
-/* 	{ */
-/* 		//horizont_point(all, &point_hor); */
-/* 		vertical_point(all, &point_vert); */
-/* 		all->plr->ray_dir += M_PI / 3 / 900; */
-/* 		point_hor.x = all->plr->x; */
-/* 		point_vert.y = all->plr->y; */
-/* 	} */
-/* } */
 
 int	key_hook(int keycode, t_all *all)
 {
-	if (keycode == 13)
+	/* printf("%d\n", keycode); */
+	if (keycode == 119)
 	{
 		all->plr->x += cos(all->plr->dir) * 5;
 		all->plr->y += sin(all->plr->dir) * 5;
 	}
-	if (keycode == 1)
+	if (keycode == 115)
 	{
 		all->plr->x -= cos(all->plr->dir) * 5;
 		all->plr->y -= sin(all->plr->dir) * 5;
 	}
-	if (keycode == 2)
+	if (keycode == 100)
 		all->plr->dir += 0.15;
-	if (keycode == 0)
+	if (keycode == 97)
 		all->plr->dir -= 0.15;
+	if (all->plr->dir <= - 3 * M_PI_2)
+		all->plr->dir += 2 * M_PI;
+	if (all->plr->dir >= M_PI)
+		all->plr->dir -= 2 * M_PI;
 	mlx_destroy_image(all->win->mlx, all->win->img);
 	all->win->img = mlx_new_image(all->win->mlx, 900, 600);
 	all->win->addr = mlx_get_data_addr(all->win->img, &all->win->bpp, &all->win->line_len, &all->win->end);
-	fill_map_on_screen(all);
+//	fill_map_on_screen(all);
 	cast_ray(all);
 	mlx_put_image_to_window(all->win->mlx, all->win->win, all->win->img, 0, 0);
 	return (1);

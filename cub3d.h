@@ -18,7 +18,7 @@
 # include <fcntl.h>
 # include "get_next_line.h"
 
-# define SCALE 20 // условный размер каждого квадратика в карте
+# define SCALE 25 // условный размер каждого квадратика в карте
 
 typedef struct	s_win //структура для окна
 {
@@ -43,9 +43,8 @@ typedef struct	s_plr //структура для игрока и луча
 	float		x;
 	float		y;
 	float		dir;
-	float		ray_dir;
-	float		start;
-	float		end;
+	float		ray_start;
+	float		ray_end;
 }				  t_plr;
 
 typedef struct	s_all // структура для всего вместе
