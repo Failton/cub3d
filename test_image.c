@@ -1,11 +1,6 @@
 #include "cub3d.h"
 #include "mlx.h"
 
-int		create_trgb(int t, int r, int g, int b)
-{
-	return(t << 24 | r << 16 | g << 8 | b);
-}
-
 unsigned int	my_mlx_get_color(t_win *data, int x, int y)
 {
 	char    *dst;
