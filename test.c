@@ -2,6 +2,11 @@
 #include "cub3d.h"
 #include "libft.h"
 
+int		get_t(int trgb)
+{
+	return (trgb & (0xFF << 24));
+}
+
 unsigned int	my_mlx_get_color(t_win *data, int x, int y)
 {
 	char    *dst;
@@ -33,7 +38,7 @@ void	put_sqr_old(t_win *data, int x, int y, char smbl)
 		while (x < x_max)
 		{
 			if (smbl == '1')
-				my_mlx_pixel_put(data, x, y, 0xFFFFFF);
+				my_mlx_pixel_put(data, x, y, 0x00FFFFFF);
 			x++;
 		}
 		y++;
@@ -80,7 +85,7 @@ void	put_line(t_all *all, int i, float x, float y)
 	float line;
 	float black;
 	int k;
-	int color = 0x0040FF;
+	int color = 0x000040FF;
 
 	k = 0;
 	distance = sqrt(x * x + y * y) * fabs(cos(all->plr->ray_start - all->plr->dir));
@@ -91,18 +96,18 @@ void	put_line(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x000000);
+		my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
-		color =  0x0040FF - SCALE * (int)(distance / SCALE);
+		color =  0x000040FF - SCALE * (int)(distance / SCALE);
 		my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x665E4F);
+		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
@@ -141,7 +146,7 @@ void	put_image_e(t_all *all, int i, float x, float y)
 {
 	int		k;
 	int		j;
-	int		color;
+	unsigned int		color;
 	float 	scl;
 
 	float line;
@@ -157,18 +162,91 @@ void	put_image_e(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x000000);
+		my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
-		color = my_mlx_get_color(all->image_e, abs((int)((y - (int)(y / SCALE) * SCALE) / SCALE * all->image_e->img_width)), (k - black) / scl);
+		color = my_mlx_get_color(all->image_e, (int)((y - (int)(y / SCALE) * SCALE) / SCALE * all->image_e->img_width), (k - black) / scl);
+		if (color != 4278190080)
+			my_mlx_pixel_put(all->win, i, k, color);
+		k++;
+	}
+	while (k < black * 2 + line)
+	{
+		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		k++;
+	}
+}
+
+void	put_image_w(t_all *all, int i, float x, float y)
+{
+	int		k;
+	int		j;
+	int		color;
+	float 	scl;
+
+	float line;
+	float black;
+
+	k = 0;
+	j = 0;
+	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
+	if (line >= 600)
+		line = 0;
+	color = 0;
+	scl = line / all->image_w->img_height;
+	black = (600 - line) / 2;
+	while (k < black)
+	{
+		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		k++;
+	}
+	while (k < line + black)
+	{
+		color = my_mlx_get_color(all->image_w, (int)(all->image_w->img_width - (y - (int)(y / SCALE) * SCALE) / SCALE * all->image_w->img_width), (k - black) / scl);
 		my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x665E4F);
+		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		k++;
+	}
+}
+
+void	put_image_n(t_all *all, int i, float x, float y)
+{
+	int		k;
+	int		j;
+	int		color;
+	float 	scl;
+
+	float line;
+	float black;
+
+	k = 0;
+	j = 0;
+	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
+	if (line >= 600)
+		line = 0;
+	color = 0;
+	scl = line / all->image_n->img_height;
+	black = (600 - line) / 2;
+	while (k < black)
+	{
+		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		k++;
+	}
+	while (k < line + black)
+	{
+		color = my_mlx_get_color(all->image_n, (int)((x - (int)(x / SCALE) * SCALE) / SCALE * all->image_n->img_width), (k - black) / scl);
+		my_mlx_pixel_put(all->win, i, k, color);
+		k++;
+	}
+	while (k < black * 2 + line)
+	{
+		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
@@ -193,20 +271,69 @@ void	put_image_s(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x000000);
+		my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
-		color = my_mlx_get_color(all->image_s, abs((int)((x - (int)(x / SCALE) * SCALE) / SCALE * all->image_s->img_width)), (k - black) / scl);
-		my_mlx_pixel_put(all->win, i, k, color);
+		color = my_mlx_get_color(all->image_s, (int)(all->image_s->img_width - (x - (int)(x / SCALE) * SCALE) / SCALE * all->image_s->img_width), (k - black) / scl);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x665E4F);
+		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
+}
+
+float		find_line(t_all *all, float x, float y)
+{
+	float line;
+	float x_tmp;
+	float y_tmp;
+	float angle;
+
+	x_tmp = (x - all->plr->x) * (- 1);
+	y_tmp = (x - all->plr->y) * (- 1);
+	angle = acos((x_tmp * y_tmp) / (sqrt(x_tmp * x_tmp + 1) * y_tmp));
+	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->dir - angle)));
+	return (line);
+}
+
+void	put_sprite(t_all *all, int i, float x, float y)
+{
+	int		k;
+	int		j;
+	unsigned int	color;
+	float 	scl;
+
+	float line;
+	float black;
+
+	k = 0;
+	j = 0;
+	x = (int)(x / SCALE) + SCALE / 2;
+	y = (int)(y / SCALE) + SCALE / 2;
+	line = find_line(all, x, y);
+	printf("%f\n", line);
+	if (line >= 600)
+		line = 0;
+	color = 0;
+	scl = line / all->sprite->img_height;
+	black = (600 - line) / 2;
+	while (k < black)
+		k++;
+	while (k < line + black)
+	{
+		color = my_mlx_get_color(all->sprite, (int)((x - (int)(x / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		if (color != 4278190080)
+			my_mlx_pixel_put(all->win, i, k, color);
+		k++;
+	}
+	while (k < black * 2 + line)
+		k++;
 }
 
 void	cast_ray(t_all *all)
@@ -234,7 +361,9 @@ void	cast_ray(t_all *all)
 		point_vert.flag = 0;
 		while (all->map[(int)(y / SCALE)][(int)(x / SCALE)] != '1')
 		{
-			//	my_mlx_pixel_put(all->win, x, y, 0x182ded);
+			//	my_mlx_pixel_put(all->win, x, y, 0x00182ded);
+			if (all->map[(int)(y / SCALE)][(int)(x / SCALE)] == '2')
+				put_sprite(all, i, x, y);
 			if (point_hor.len < point_vert.len)
 			{
 				x = point_hor.x;
@@ -254,14 +383,16 @@ void	cast_ray(t_all *all)
 		}
 		if (point_vert.flag == 1 && ((all->plr->ray_start >= - M_PI_2 && all->plr->ray_start <= M_PI_2) || (all->plr->ray_start <= - 3 * M_PI_2 && all->plr->ray_start >= - 2 * M_PI)))
 			put_image_e(all, i, x, y);
+		else if (point_vert.flag == 1)
+			put_image_w(all, i, x, y);
 		else if (point_hor.flag == 1 && ((all->plr->ray_start >= - M_PI && all->plr->ray_start <= 0) || (all->plr->ray_start >= M_PI && all->plr->ray_start <= 3 * M_PI_2)))
-			put_image_s(all, i, x, y);
+			put_image_n(all, i, x, y);
 		else
-			put_line(all, i, fabs(all->plr->x - x), fabs(all->plr->y - y));
+			put_image_s(all, i, x, y);
 		i++;
 		all->plr->ray_start = - atan((450 - i) / (sqrt(3) * 450)) + all->plr->dir;
 
-		//	my_mlx_pixel_put(all->win, x, y, 0xFF0000);
+		//	my_mlx_pixel_put(all->win, x, y, 0x00FF0000);
 		x = all->plr->x;
 		y = all->plr->y;
 		point_hor.x = all->plr->x;
@@ -326,7 +457,11 @@ char	**parcer(int fd)
 int main(int argc, char **argv)
 {
 	char    *e_path = "./image_e.xpm";
+	/* char    *e_path = "./light.xpm"; */
 	char	*s_path = "./image_s.xpm";
+	char    *n_path = "./image_n.xpm";
+	char	*w_path = "./image_w.xpm";
+	char	*sprite_path = "./sprite.xpm";
 	t_all all;
 	int fd;
 
@@ -335,19 +470,33 @@ int main(int argc, char **argv)
 	all.plr = malloc(sizeof(t_plr));
 	all.image_e = malloc(sizeof(t_win));
 	all.image_s = malloc(sizeof(t_win));
+	all.image_n = malloc(sizeof(t_win));
+	all.image_w = malloc(sizeof(t_win));
+	all.sprite = malloc(sizeof(t_win));
+
+
 	fd = open(argv[1], O_RDONLY);
-//	printf("q\n");
 	all.map = parcer(fd);
 	all.win->mlx = mlx_init();
 	all.win->win = mlx_new_window(all.win->mlx, 900, 600, "cub3d");
 	all.win->img = mlx_new_image(all.win->mlx, 900, 600);
 	all.win->addr = mlx_get_data_addr(all.win->img, &all.win->bpp, &all.win->line_len, &all.win->end);
 
+	/* printf("%u\n", my_mlx_get_color(all.win, 10, 10)); */
 	all.image_e->img = mlx_xpm_file_to_image(all.win->mlx, e_path, &all.image_e->img_width, &all.image_e->img_height);
 	all.image_e->addr = mlx_get_data_addr(all.image_e->img, &all.image_e->bpp, &all.image_e->line_len, &all.image_e->end);
 
 	all.image_s->img = mlx_xpm_file_to_image(all.win->mlx, s_path, &all.image_s->img_width, &all.image_s->img_height);
 	all.image_s->addr = mlx_get_data_addr(all.image_s->img, &all.image_s->bpp, &all.image_s->line_len, &all.image_s->end);
+
+	all.image_n->img = mlx_xpm_file_to_image(all.win->mlx, n_path, &all.image_n->img_width, &all.image_n->img_height);
+	all.image_n->addr = mlx_get_data_addr(all.image_n->img, &all.image_n->bpp, &all.image_n->line_len, &all.image_n->end);
+
+	all.image_w->img = mlx_xpm_file_to_image(all.win->mlx, w_path, &all.image_w->img_width, &all.image_w->img_height);
+	all.image_w->addr = mlx_get_data_addr(all.image_w->img, &all.image_w->bpp, &all.image_w->line_len, &all.image_w->end);
+
+	all.sprite->img = mlx_xpm_file_to_image(all.win->mlx, sprite_path, &all.sprite->img_width, &all.sprite->img_height);
+	all.sprite->addr = mlx_get_data_addr(all.sprite->img, &all.sprite->bpp, &all.sprite->line_len, &all.sprite->end);
 
 	fill_map_on_screen(&all);
 	cast_ray(&all);

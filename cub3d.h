@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:18:43 by pruthann          #+#    #+#             */
-/*   Updated: 2021/02/07 20:00:20 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/02/13 15:18:58 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ typedef struct	s_all // структура для всего вместе
 	t_win		*image_s;
 	t_win		*image_w;
 	t_win		*image_e;
+	t_win		*sprite;
 	t_plr		*plr;
 	char		**map;
 }				  t_all;
