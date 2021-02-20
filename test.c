@@ -162,19 +162,21 @@ void	put_image_e(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
 		color = my_mlx_get_color(all->image_e, (int)((y - (int)(y / SCALE) * SCALE) / SCALE * all->image_e->img_width), (k - black) / scl);
-		if (color != 4278190080)
+		if (my_mlx_get_color(all->win, i, k) == 0)
 			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
@@ -199,18 +201,21 @@ void	put_image_w(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
 		color = my_mlx_get_color(all->image_w, (int)(all->image_w->img_width - (y - (int)(y / SCALE) * SCALE) / SCALE * all->image_w->img_width), (k - black) / scl);
-		my_mlx_pixel_put(all->win, i, k, color);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
@@ -235,18 +240,21 @@ void	put_image_n(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
 	{
 		color = my_mlx_get_color(all->image_n, (int)((x - (int)(x / SCALE) * SCALE) / SCALE * all->image_n->img_width), (k - black) / scl);
-		my_mlx_pixel_put(all->win, i, k, color);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
@@ -271,7 +279,8 @@ void	put_image_s(t_all *all, int i, float x, float y)
 	black = (600 - line) / 2;
 	while (k < black)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00000000);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00000000);
 		k++;
 	}
 	while (k < line + black)
@@ -283,24 +292,75 @@ void	put_image_s(t_all *all, int i, float x, float y)
 	}
 	while (k < black * 2 + line)
 	{
-		my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+		if (my_mlx_get_color(all->win, i, k) == 0)
+			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
 		k++;
 	}
 }
 
-float		find_line(t_all *all, float x, float y)
+void		find_line(t_all *all, float *x, float *y)
 {
-	float line;
+	float proj;
+	float dist;
 	float x_tmp;
 	float y_tmp;
 	float angle;
 
-	x_tmp = (x - all->plr->x) * (- 1);
-	y_tmp = (x - all->plr->y) * (- 1);
-	angle = acos((x_tmp * y_tmp) / (sqrt(x_tmp * x_tmp + 1) * y_tmp));
-	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->dir - angle)));
-	return (line);
+	x_tmp = (*x - all->plr->x);
+	y_tmp = (*y - all->plr->y);
+	angle = atan(y_tmp / x_tmp);
+	/* printf("%f %f\n", angle, all->plr->dir); */
+	angle = all->plr->dir - angle;
+	dist = sqrt(pow(all->plr->x - *x, 2) + pow(all->plr->y - *y, 2));
+	proj = dist * cos(angle);
+	proj = proj / cos(all->plr->dir - all->plr->ray_start);
+	if ((int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE))
+		*x = all->plr->x + proj * cos(all->plr->ray_start);
+	if ((int)((all->plr->y + proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE))
+	*y = all->plr->y + proj * sin(all->plr->ray_start);
 }
+
+/* void	put_sprite(t_all *all, int i, float x, float y) */
+/* { */
+/* 	int		k; */
+/* 	int		j; */
+/* 	unsigned int	color; */
+/* 	float 	scl; */
+/* 	float	tmp_x; */
+/* 	float	tmp_y; */
+/*  */
+/* 	float line; */
+/* 	float black; */
+/*  */
+/* 	k = 0; */
+/* 	j = 0; */
+/* 	tmp_x = (int)(x / SCALE) * SCALE + SCALE / 2; */
+/* 	tmp_y = (int)(y / SCALE) * SCALE + SCALE / 2; */
+/* 	printf("%f %f\n", tmp_x, tmp_y); */
+/* 	line = SCALE * 600 / (sqrt(pow(all->plr->x - tmp_x, 2) + pow(all->plr->y - tmp_y, 2))); */
+/* 	find_line(all, &tmp_x, &tmp_y); */
+/* 	#<{(| printf("%f\n", line); |)}># */
+/* 	if (line >= 600) */
+/* 		line = 0; */
+/* 	color = 0; */
+/* 	scl = line / all->sprite->img_height; */
+/* 	black = (600 - line) / 2; */
+/* 	printf("%f %f\n", tmp_x, tmp_y); */
+/* 	printf("%d\n", (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width)); */
+/* 	while (k < black) */
+/* 		k++; */
+/* 	while (k < line + black) */
+/* 	{ */
+/* 		color = my_mlx_get_color(all->sprite, (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width), (k - black) / scl); */
+/* 		if (color != 4278190080) */
+/* 			my_mlx_pixel_put(all->win, i, k, color); */
+/* 		k++; */
+/* 	} */
+/* 	while (k < black * 2 + line) */
+/* 		k++; */
+/* } */
+
+void	tur
 
 void	put_sprite(t_all *all, int i, float x, float y)
 {
@@ -308,16 +368,19 @@ void	put_sprite(t_all *all, int i, float x, float y)
 	int		j;
 	unsigned int	color;
 	float 	scl;
+	float	tmp_x;
+	float	tmp_y;
 
 	float line;
 	float black;
 
 	k = 0;
 	j = 0;
-	x = (int)(x / SCALE) + SCALE / 2;
-	y = (int)(y / SCALE) + SCALE / 2;
-	line = find_line(all, x, y);
-	printf("%f\n", line);
+	tmp_x = (int)(x / SCALE) * SCALE + SCALE / 2;
+	tmp_y = (int)(y / SCALE) * SCALE + SCALE / 2;
+	line = SCALE * 600 / (sqrt(pow(all->plr->x - tmp_x, 2) + pow(all->plr->y - tmp_y, 2)));
+	find_line(all, &tmp_x, &tmp_y);
+	/* printf("%f\n", line); */
 	if (line >= 600)
 		line = 0;
 	color = 0;
@@ -327,7 +390,7 @@ void	put_sprite(t_all *all, int i, float x, float y)
 		k++;
 	while (k < line + black)
 	{
-		color = my_mlx_get_color(all->sprite, (int)((x - (int)(x / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		color = my_mlx_get_color(all->sprite, (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width), (k - black) / scl);
 		if (color != 4278190080)
 			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
