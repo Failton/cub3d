@@ -145,7 +145,6 @@ void	vertical_point(t_all *all, t_point *point)
 void	put_image_e(t_all *all, int i, float x, float y)
 {
 	int		k;
-	int		j;
 	unsigned int		color;
 	float 	scl;
 
@@ -153,7 +152,6 @@ void	put_image_e(t_all *all, int i, float x, float y)
 	float black;
 
 	k = 0;
-	j = 0;
 	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
 	if (line >= 600)
 		line = 0;
@@ -184,7 +182,6 @@ void	put_image_e(t_all *all, int i, float x, float y)
 void	put_image_w(t_all *all, int i, float x, float y)
 {
 	int		k;
-	int		j;
 	int		color;
 	float 	scl;
 
@@ -192,7 +189,6 @@ void	put_image_w(t_all *all, int i, float x, float y)
 	float black;
 
 	k = 0;
-	j = 0;
 	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
 	if (line >= 600)
 		line = 0;
@@ -223,7 +219,6 @@ void	put_image_w(t_all *all, int i, float x, float y)
 void	put_image_n(t_all *all, int i, float x, float y)
 {
 	int		k;
-	int		j;
 	int		color;
 	float 	scl;
 
@@ -231,7 +226,6 @@ void	put_image_n(t_all *all, int i, float x, float y)
 	float black;
 
 	k = 0;
-	j = 0;
 	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
 	if (line >= 600)
 		line = 0;
@@ -262,7 +256,6 @@ void	put_image_n(t_all *all, int i, float x, float y)
 void	put_image_s(t_all *all, int i, float x, float y)
 {
 	int		k;
-	int		j;
 	int		color;
 	float 	scl;
 
@@ -270,7 +263,6 @@ void	put_image_s(t_all *all, int i, float x, float y)
 	float black;
 
 	k = 0;
-	j = 0;
 	line = SCALE * 600 / (sqrt(pow(all->plr->x - x, 2) + pow(all->plr->y - y, 2)) * fabs(cos(all->plr->ray_start - all->plr->dir)));
 	if (line >= 600)
 		line = 0;
@@ -309,63 +301,44 @@ void		find_line(t_all *all, float *x, float *y)
 	x_tmp = (*x - all->plr->x);
 	y_tmp = (*y - all->plr->y);
 	angle = atan(y_tmp / x_tmp);
-	/* printf("%f %f\n", angle, all->plr->dir); */
+	printf("%f %f\n", angle, all->plr->dir);
 	angle = all->plr->dir - angle;
 	dist = sqrt(pow(all->plr->x - *x, 2) + pow(all->plr->y - *y, 2));
 	proj = dist * cos(angle);
 	proj = proj / cos(all->plr->dir - all->plr->ray_start);
-	if ((int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE))
+	printf("%d %d %d %d %f\n", (int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE), (int)(*x / SCALE), (int)((all->plr->y + proj * sin(all->plr->ray_start)) / SCALE), (int)(*y / SCALE), all->plr->dir);
+	/* if ((int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE) && all->plr->dir >= - M_PI_2 && all->plr->dir <= M_PI_2) */
+	/* 	*x = all->plr->x + proj * cos(all->plr->ray_start); */
+	/* else if ((int)((all->plr->x - proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE) && ((all->plr->dir >= - 3 * M_PI_2 && all->plr->dir <= - M_PI_2) || (all->plr->dir >= M_PI_2 && all->plr->dir <= M_PI))) */
+	/* 	*x = all->plr->x - proj * cos(all->plr->ray_start); */
+	/* else */
+	/* 	*x = -1; */
+	/* if ((int)((all->plr->y + proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE) && all->plr->dir >= - M_PI_2 && all->plr->dir <= M_PI_2) */
+	/* 	*y = all->plr->y + proj * sin(all->plr->ray_start); */
+	/* else if ((int)((all->plr->y - proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE) && ((all->plr->dir >= - 3 * M_PI_2 && all->plr->dir <= - M_PI_2) || (all->plr->dir >= M_PI_2 && all->plr->dir <= M_PI))) */
+	/* 	*y = all->plr->y - proj * sin(all->plr->ray_start); */
+	/* else */
+	/* 	*y = -1; */
+
+
+
+	if ((int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE) && (*x - all->plr->x) >= 0)
 		*x = all->plr->x + proj * cos(all->plr->ray_start);
+	else if ((int)((all->plr->x - proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE) && (*x - all->plr->x) < 0)
+		*x = all->plr->x - proj * cos(all->plr->ray_start);
+	else
+		*x = -1;
 	if ((int)((all->plr->y + proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE))
-	*y = all->plr->y + proj * sin(all->plr->ray_start);
+		*y = all->plr->y + proj * sin(all->plr->ray_start);
+	else if ((int)((all->plr->y - proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE))
+		*y = all->plr->y - proj * sin(all->plr->ray_start);
+	else
+		*y = -1;
 }
-
-/* void	put_sprite(t_all *all, int i, float x, float y) */
-/* { */
-/* 	int		k; */
-/* 	int		j; */
-/* 	unsigned int	color; */
-/* 	float 	scl; */
-/* 	float	tmp_x; */
-/* 	float	tmp_y; */
-/*  */
-/* 	float line; */
-/* 	float black; */
-/*  */
-/* 	k = 0; */
-/* 	j = 0; */
-/* 	tmp_x = (int)(x / SCALE) * SCALE + SCALE / 2; */
-/* 	tmp_y = (int)(y / SCALE) * SCALE + SCALE / 2; */
-/* 	printf("%f %f\n", tmp_x, tmp_y); */
-/* 	line = SCALE * 600 / (sqrt(pow(all->plr->x - tmp_x, 2) + pow(all->plr->y - tmp_y, 2))); */
-/* 	find_line(all, &tmp_x, &tmp_y); */
-/* 	#<{(| printf("%f\n", line); |)}># */
-/* 	if (line >= 600) */
-/* 		line = 0; */
-/* 	color = 0; */
-/* 	scl = line / all->sprite->img_height; */
-/* 	black = (600 - line) / 2; */
-/* 	printf("%f %f\n", tmp_x, tmp_y); */
-/* 	printf("%d\n", (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width)); */
-/* 	while (k < black) */
-/* 		k++; */
-/* 	while (k < line + black) */
-/* 	{ */
-/* 		color = my_mlx_get_color(all->sprite, (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width), (k - black) / scl); */
-/* 		if (color != 4278190080) */
-/* 			my_mlx_pixel_put(all->win, i, k, color); */
-/* 		k++; */
-/* 	} */
-/* 	while (k < black * 2 + line) */
-/* 		k++; */
-/* } */
-
-void	tur
 
 void	put_sprite(t_all *all, int i, float x, float y)
 {
 	int		k;
-	int		j;
 	unsigned int	color;
 	float 	scl;
 	float	tmp_x;
@@ -375,7 +348,6 @@ void	put_sprite(t_all *all, int i, float x, float y)
 	float black;
 
 	k = 0;
-	j = 0;
 	tmp_x = (int)(x / SCALE) * SCALE + SCALE / 2;
 	tmp_y = (int)(y / SCALE) * SCALE + SCALE / 2;
 	line = SCALE * 600 / (sqrt(pow(all->plr->x - tmp_x, 2) + pow(all->plr->y - tmp_y, 2)));
@@ -390,8 +362,12 @@ void	put_sprite(t_all *all, int i, float x, float y)
 		k++;
 	while (k < line + black)
 	{
-		color = my_mlx_get_color(all->sprite, (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width), (k - black) / scl);
-		if (color != 4278190080)
+		/* color = my_mlx_get_color(all->sprite, (int)(sqrt(pow((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE, 2) + pow((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE, 2)) * all->sprite->img_width), (k - black) / scl); */
+		if (tmp_y != -1 && tmp_x != -1 && ((all->plr->dir >= - M_PI / 4 && all->plr->dir <= M_PI / 4) || (all->plr->dir <= - 3 * M_PI_4 && all->plr->dir >= - 5 * M_PI_4) || (all->plr->dir <= M_PI && all->plr->dir >= 3 * M_PI_4)))
+			color = my_mlx_get_color(all->sprite, (int)((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		else if (tmp_y != -1 && tmp_x != -1)
+			color = my_mlx_get_color(all->sprite, (int)((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		 (color != 4278190080 && tmp_y != -1 && tmp_y != -1)
 			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
@@ -468,19 +444,19 @@ void	cast_ray(t_all *all)
 int	key_hook(int keycode, t_all *all)
 {
 	/* printf("%d\n", keycode); */
-	if (keycode == 13)
+	if (keycode == 13 || keycode == 119)
 	{
 		all->plr->x += cos(all->plr->dir) * 0.4 * SCALE;
 		all->plr->y += sin(all->plr->dir) * 0.4 * SCALE;
 	}
-	if (keycode == 1)
+	if (keycode == 1 || keycode == 115)
 	{
 		all->plr->x -= cos(all->plr->dir) * 0.4 * SCALE;
 		all->plr->y -= sin(all->plr->dir) * 0.4 * SCALE;
 	}
-	if (keycode == 2)
+	if (keycode == 2 || keycode == 100)
 		all->plr->dir += 0.15;
-	if (keycode == 0)
+	if (keycode == 0 || keycode == 97)
 		all->plr->dir -= 0.15;
 	if (all->plr->dir <= - 3 * M_PI_2)
 		all->plr->dir += 2 * M_PI;
