@@ -67,7 +67,7 @@ int fill_map_on_screen(t_all *all)
 			{
 				all->plr->x = x + SCALE / 2;
 				all->plr->y = y + SCALE / 2;
-				all->plr->dir = M_PI_4;
+				all->plr->dir = M_PI;
 				all->map[i][j] = '0';
 			}
 			x += SCALE;
@@ -290,38 +290,6 @@ void	put_image_s(t_all *all, int i, float x, float y)
 	}
 }
 
-/* void		find_line(t_all *all, float *x, float *y) */
-/* { */
-/* 	float proj; */
-/* 	float dist; */
-/* 	float x_tmp; */
-/* 	float y_tmp; */
-/* 	float angle; */
-/*  */
-/* 	x_tmp = (*x - all->plr->x); */
-/* 	y_tmp = (*y - all->plr->y); */
-/* 	angle = atan(y_tmp / x_tmp); */
-/* 	angle = all->plr->dir - angle; */
-/* 	dist = sqrt(pow(all->plr->x - *x, 2) + pow(all->plr->y - *y, 2)); */
-/* 	proj = dist * cos(angle); */
-/* 	proj = proj / cos(all->plr->dir - all->plr->ray_start); */
-/*  */
-/* 	if ((int)((all->plr->x + proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE)) */
-/* 		*x = all->plr->x + proj * cos(all->plr->ray_start); */
-/* 	else if ((int)((all->plr->x - proj * cos(all->plr->ray_start)) / SCALE) == (int)(*x / SCALE)) */
-/* 		*x = all->plr->x - proj * cos(all->plr->ray_start); */
-/* 	else */
-/* 		*x = -1; */
-/*  */
-/*  */
-/* 	if ((int)((all->plr->y + proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE)) */
-/* 		*y = all->plr->y + proj * sin(all->plr->ray_start); */
-/* 	else if ((int)((all->plr->y - proj * sin(all->plr->ray_start)) / SCALE) == (int)(*y / SCALE)) */
-/* 		*y = all->plr->y - proj * sin(all->plr->ray_start); */
-/* 	else */
-/* 		*y = -1; */
-/* } */
-
 void		find_line(t_all *all, float *x1, float *y1)
 {
 	float x2;
@@ -336,8 +304,14 @@ void		find_line(t_all *all, float *x1, float *y1)
 	float b2;
 	float c2;
 
-	x2 = *x1 + sin(all->plr->dir) * SCALE;
-	y2 = *y1 + cos(all->plr->dir) * SCALE;
+	if ((all->plr->dir >= 0 && all->plr->dir <= M_PI_2) || (all->plr->dir >= - M_PI && all->plr->dir <= - M_PI_2))
+		x2 = *x1 - tan(all->plr->dir) * SCALE;
+	else
+		x2 = *x1 + tan(all->plr->dir) * SCALE;
+	if (all->plr->dir == 0 || all->plr->dir == - M_PI || all->plr->dir == M_PI)
+		y2 = *y1 + SCALE;
+	else
+		y2 = *y1 + 1 / tan(all->plr->dir) * SCALE;
 	a1 = *y1 - y2;
 	b1 = x2 - *x1;
 	c1 = *x1 * y2 - x2 * *y1;
@@ -348,8 +322,6 @@ void		find_line(t_all *all, float *x1, float *y1)
 	b2 = x3 - all->plr->x;
 	c2 = all->plr->x * y3 - x3 * all->plr->y;
 
-	/* printf("%d %d %d %d\n", (int)(((a1 * c2 - a2 * c1) / (a2 * b1 - a1 * b2)) / SCALE), (int)(*y1 / SCALE), (int)((- (b2 / a2) * *y1 - (c2 / a2)) / SCALE), (int)(*x1 / SCALE)); */
-	printf("%f %f %f %f %d %f %d\n", a1, b1, c1, (a1 * c2 - a2 * c1) / (a2 * b1 - a1 * b2), (int)(*y1 / SCALE), - (b2 / a2) * *y1 - (c2 / a2), (int)(*x1 / SCALE));
 	if ((int)(((a1 * c2 - a2 * c1) / (a2 * b1 - a1 * b2)) / SCALE) == (int)(*y1 / SCALE))
 		*y1 = (a1 * c2 - a2 * c1) / (a2 * b1 - a1 * b2);
 	else
@@ -385,11 +357,15 @@ void	put_sprite(t_all *all, int i, float x, float y)
 		k++;
 	while (k < line + black)
 	{
-		if (tmp_y != -1 && tmp_x != -1 && ((all->plr->dir >= - M_PI / 4 && all->plr->dir <= M_PI / 4) || (all->plr->dir <= - 3 * M_PI_4 && all->plr->dir >= - 5 * M_PI_4) || (all->plr->dir <= M_PI && all->plr->dir >= 3 * M_PI_4)))
+		if (tmp_y != -1 && tmp_x != -1 && all->plr->dir >= - M_PI / 4 && all->plr->dir <= M_PI / 4)
 			color = my_mlx_get_color(all->sprite, (int)((tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
-		else if (tmp_y != -1 && tmp_x != -1)
+		else if (tmp_y != -1 && tmp_x != -1 && ((all->plr->dir <= - 3 * M_PI_4 && all->plr->dir >= - 5 * M_PI_4) || (all->plr->dir <= M_PI && all->plr->dir >= 3 * M_PI_4)))
+			color = my_mlx_get_color(all->sprite, (int)(all->sprite->img_width - (tmp_y - (int)(tmp_y / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		else if (tmp_y != -1 && tmp_x != -1 && all->plr->dir >= - 3 * M_PI_4 && all->plr->dir <= - M_PI_4)
 			color = my_mlx_get_color(all->sprite, (int)((tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
-		if (color != 4278190080 && tmp_y != -1 && tmp_y != -1)
+		else if (tmp_y != -1 && tmp_x != -1)
+			color = my_mlx_get_color(all->sprite, (int)(all->sprite->img_width - (tmp_x - (int)(tmp_x / SCALE) * SCALE) / SCALE * all->sprite->img_width), (k - black) / scl);
+		if (color != 4278190080 && tmp_y != -1 && tmp_y != -1 && my_mlx_get_color(all->win, i, k) == 0)
 			my_mlx_pixel_put(all->win, i, k, color);
 		k++;
 	}
@@ -479,12 +455,12 @@ int	key_hook(int keycode, t_all *all)
 		all->plr->x -= cos(all->plr->dir) * 0.4 * SCALE;
 		all->plr->y -= sin(all->plr->dir) * 0.4 * SCALE;
 	}
-	if (keycode == 123)
+	if (keycode == 123 || keycode == 65361)
 	{
 		all->plr->x += sin(all->plr->dir) * 0.4 * SCALE;
 		all->plr->y -= cos(all->plr->dir) * 0.4 * SCALE;
 	}
-	if (keycode == 124)
+	if (keycode == 124 || keycode == 65363)
 	{
 		all->plr->x -= sin(all->plr->dir) * 0.4 * SCALE;
 		all->plr->y += cos(all->plr->dir) * 0.4 * SCALE;
