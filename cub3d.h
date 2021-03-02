@@ -35,37 +35,38 @@ typedef struct	s_win //структура для окна
 
 typedef struct	s_point // структура для точки
 {
-	float			v_x;
-	float			v_y;
-	float			v_len;
+	double			v_x;
+	double			v_y;
+	double			v_len;
 	int			v_flag;
-	float			h_x;
-	float			h_y;
-	float			h_len;
+	double			h_x;
+	double			h_y;
+	double			h_len;
 	int			h_flag;
 
 }				  t_point;
 
 typedef struct	s_plr //структура для игрока и луча
 {
-	float		x;
-	float		y;
-	float		dir;
-	float		ray_start;
-	float		ray_end;
+	double		x;
+	double		y;
+	double		dir;
+	double		ray_start;
+	double		ray_end;
 }				  t_plr;
 
 
 
 typedef struct	s_all // структура для всего вместе
 {
-	t_win		*win;
-	t_win		*image_n;
-	t_win		*image_s;
-	t_win		*image_w;
-	t_win		*image_e;
-	t_win		*sprite;
-	t_plr		*plr;
+	t_win		win;
+	t_win		image_n;
+	t_win		image_s;
+	t_win		image_w;
+	t_win		image_e;
+	t_win		sprite;
+	t_plr		plr;
+	t_point		point;
 	char		**map;
 }				  t_all;
 
