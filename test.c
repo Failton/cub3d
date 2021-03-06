@@ -7,6 +7,21 @@ int	width = 900;
 int	height = 600;
 t_all	all;
 
+int		get_r(int trgb)
+{
+	return (trgb & (0xFF << 16));
+}
+
+int		get_g(int trgb)
+{
+	return (trgb & (0xFF << 8));
+}
+
+int		get_b(int trgb)
+{
+	return (trgb & 0xFF);
+}
+
 unsigned int	my_mlx_get_color(t_win data, int x, int y)
 {
 	char    *dst;
@@ -358,11 +373,22 @@ int	key_hook(int keycode, t_all *all)
 		all->plr.dir += 2 * M_PI;
 	if (all->plr.dir >= M_PI)
 		all->plr.dir -= 2 * M_PI;
+	if (keycode == 65307)
+		exit(1);
 	mlx_destroy_image(all->win.mlx, all->win.img);
 	all->win.img = mlx_new_image(all->win.mlx, width, height);
 	all->win.addr = mlx_get_data_addr(all->win.img, &all->win.bpp, &all->win.line_len, &all->win.end);
 	cast_ray(all);
 	mlx_put_image_to_window(all->win.mlx, all->win.win, all->win.img, 0, 0);
+	return (1);
+}
+
+int	close_win(int keycode, t_all *all)
+{
+	(void)keycode;
+	(void)all;
+
+	exit(1);
 	return (1);
 }
 
@@ -388,6 +414,89 @@ char	**parcer(int fd)
 	return (map);
 }
 
+void screenshot_filler(t_shot *shot)
+{
+	shot->filesize = 14 + 40 + width*height*4;
+	shot->reserved = 0;
+	shot->offset = 14 + 40;
+	shot->headersize = 40;
+	shot->dimension_x = width;
+	shot->dimension_y = height;
+	shot->colorplanes = 1;
+	shot->bpp = 32;
+	shot->compression = 0;
+	shot->imgsize = width * width * 4;
+	shot->resolution_x = 2795;
+	shot->resolution_y = 2795;
+	shot->pltcolors = 0;
+	shot->impcolors = 0;
+}
+
+void screenshot_header(int fd)
+{
+	t_shot shot;
+
+	screenshot_filler(&shot);
+	write(fd, "BM", 2);
+	write(fd, (char *)(&shot.filesize), sizeof(shot.filesize));
+	write(fd, (char *)(&shot.reserved), sizeof(shot.reserved));
+	write(fd, (char *)(&shot.offset), sizeof(shot.offset));
+
+	write(fd, (char *)(&shot.headersize), sizeof(shot.headersize));
+	write(fd, (char *)(&shot.dimension_x), sizeof(shot.dimension_x));
+	write(fd, (char *)(&shot.dimension_y), sizeof(shot.dimension_y));
+	write(fd, (char *)(&shot.colorplanes), sizeof(shot.colorplanes));
+	write(fd, (char *)(&shot.bpp), sizeof(shot.bpp));
+	write(fd, (char *)(&shot.compression), sizeof(shot.compression));
+	write(fd, (char *)(&shot.imgsize), sizeof(shot.imgsize));
+	write(fd, (char *)(&shot.resolution_x), sizeof(shot.resolution_x));
+	write(fd, (char *)(&shot.resolution_y), sizeof(shot.resolution_y));
+	write(fd, (char *)(&shot.pltcolors), sizeof(shot.pltcolors));
+	write(fd, (char *)(&shot.impcolors), sizeof(shot.impcolors));
+
+}
+
+void screenshot_trgb(int fd, int color)
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char t;
+
+	t = 0;
+	r = get_r(color) / 65536;
+	g = get_g(color) / 256;
+	b = get_b(color);
+	write(fd, (char *)(&b), sizeof(b));
+	write(fd, (char *)(&g), sizeof(g));
+	write(fd, (char *)(&r), sizeof(r));
+	write(fd, (char *)(&t), sizeof(t));
+}
+
+void screenshot()
+{
+	int fd;
+	int x;
+	int y;
+	int color;
+
+	x = 0;
+	y = height;
+	fd = open("img.bmp", O_CREAT | O_RDWR | O_TRUNC);
+	screenshot_header(fd);
+	while (y - 1 >= 0)
+	{
+		x = 0;
+		while (x < width)
+		{
+			color = my_mlx_get_color(all.win, x, y - 1);
+			screenshot_trgb(fd, color);
+			x++;
+		}
+		y--;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	char    *e_path = "./image_e.xpm";
@@ -397,7 +506,6 @@ int main(int argc, char **argv)
 	char	*sprite_path = "./sprite.xpm";
 	int fd;
 
-	(void)argc;
 	fd = open(argv[1], O_RDONLY);
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
@@ -423,6 +531,11 @@ int main(int argc, char **argv)
 	fill_map_on_screen(&all);
 	cast_ray(&all);
 	mlx_put_image_to_window(all.win.mlx, all.win.win, all.win.img, 0, 0);
+
+	if (argc == 3)
+		if (ft_strncmp(argv[2], "--save", 7) == 0)
+			screenshot();
+	mlx_hook(all.win.win, 17, 0L, close_win, &all);
 	mlx_hook(all.win.win, 2, 1L<<0, key_hook, &all);
 	mlx_loop(all.win.mlx);
 }

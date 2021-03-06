@@ -70,4 +70,22 @@ typedef struct	s_all // структура для всего вместе
 	char		**map;
 }				  t_all;
 
+typedef struct	s_shot // структура для всего вместе
+{
+	unsigned int filesize;
+	unsigned int reserved;
+	unsigned int offset ;
+	unsigned int headersize;
+	unsigned int dimension_x;
+	unsigned int dimension_y;
+	unsigned short colorplanes;
+	unsigned short bpp;
+	unsigned int compression;
+	unsigned int imgsize;
+	unsigned int resolution_x;
+	unsigned int resolution_y;
+	unsigned int pltcolors;
+	unsigned int impcolors;
+}		t_shot;
+
 #endif
