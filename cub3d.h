@@ -18,14 +18,15 @@
 # include <fcntl.h>
 # include "get_next_line.h"
 
-# define SCALE 62 // условный размер каждого квадратика в карте
+# define SCALE 62
 
-typedef struct	s_win //структура для окна
+typedef struct	s_win
 {
 	void		*mlx;
 	void		*win;
 	void		*img;
 	void		*addr;
+	char *path;
 	int			line_len;
 	int			bpp;
 	int			end;
@@ -33,7 +34,7 @@ typedef struct	s_win //структура для окна
 	int			img_height;
 }				  t_win;
 
-typedef struct	s_point // структура для точки
+typedef struct	s_point
 {
 	double			v_x;
 	double			v_y;
@@ -46,7 +47,7 @@ typedef struct	s_point // структура для точки
 
 }				  t_point;
 
-typedef struct	s_plr //структура для игрока и луча
+typedef struct	s_plr
 {
 	double		x;
 	double		y;
@@ -57,7 +58,7 @@ typedef struct	s_plr //структура для игрока и луча
 
 
 
-typedef struct	s_all // структура для всего вместе
+typedef struct	s_all
 {
 	t_win		win;
 	t_win		image_n;
@@ -70,7 +71,7 @@ typedef struct	s_all // структура для всего вместе
 	char		**map;
 }				  t_all;
 
-typedef struct	s_shot // структура для всего вместе
+typedef struct	s_shot
 {
 	unsigned int filesize;
 	unsigned int reserved;
@@ -87,5 +88,17 @@ typedef struct	s_shot // структура для всего вместе
 	unsigned int pltcolors;
 	unsigned int impcolors;
 }		t_shot;
+
+typedef struct	s_header
+{
+	int res;
+	int no;;
+	int so;
+	int we;
+	int ea;
+	int s;
+	int f;
+	int c;
+}		t_header;
 
 #endif

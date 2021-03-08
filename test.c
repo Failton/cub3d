@@ -5,7 +5,11 @@
 
 int	width = 900;
 int	height = 600;
+t_point point;
 t_all	all;
+t_header header;
+int	floor_color;
+int	ceil_color;
 
 int		get_r(int trgb)
 {
@@ -20,6 +24,11 @@ int		get_g(int trgb)
 int		get_b(int trgb)
 {
 	return (trgb & 0xFF);
+}
+
+int		create_trgb(int t, int r, int g, int b)
+{
+	return(t << 24 | r << 16 | g << 8 | b);
 }
 
 unsigned int	my_mlx_get_color(t_win data, int x, int y)
@@ -114,7 +123,7 @@ void	put_image_e(t_all *all, int i, double x, double y)
 	black = (height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00000000);
+			my_mlx_pixel_put(all->win, i, k, floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -122,7 +131,7 @@ void	put_image_e(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+			my_mlx_pixel_put(all->win, i, k, ceil_color);
 }
 
 void	put_image_w(t_all *all, int i, double x, double y)
@@ -138,7 +147,7 @@ void	put_image_w(t_all *all, int i, double x, double y)
 	black = (height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00000000);
+			my_mlx_pixel_put(all->win, i, k, floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -146,7 +155,7 @@ void	put_image_w(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+			my_mlx_pixel_put(all->win, i, k, ceil_color);
 }
 
 void	put_image_n(t_all *all, int i, double x, double y)
@@ -162,7 +171,7 @@ void	put_image_n(t_all *all, int i, double x, double y)
 	black = (height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00000000);
+			my_mlx_pixel_put(all->win, i, k, floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -170,7 +179,7 @@ void	put_image_n(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+			my_mlx_pixel_put(all->win, i, k, ceil_color);
 }
 
 void	put_image_s(t_all *all, int i, double x, double y)
@@ -186,7 +195,7 @@ void	put_image_s(t_all *all, int i, double x, double y)
 	black = (height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00000000);
+			my_mlx_pixel_put(all->win, i, k, floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -194,7 +203,7 @@ void	put_image_s(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, 0x00665E4F);
+			my_mlx_pixel_put(all->win, i, k, ceil_color);
 }
 
 void		find_line(t_all *all, double *x1, double *y1)
@@ -307,7 +316,6 @@ void	cast_ray_next(t_point *point, double *x, double *y, t_all *all)
 
 void	cast_ray(t_all *all)
 {
-	t_point point;
 	double x;
 	double y;
 	int i;
@@ -400,6 +408,7 @@ char	**parcer(int fd)
 	t_list *map_list;
 
 	map_list = NULL;
+
 	while (get_next_line(fd, &line))
 		ft_lstadd_back(&map_list, ft_lstnew(line));
 	ft_lstadd_back(&map_list, ft_lstnew(line));
@@ -409,6 +418,12 @@ char	**parcer(int fd)
 	{
 		map[i] = map_list->content;
 		map_list = map_list->next;
+		i++;
+	}
+	i = 0;
+	while (map[i])
+	{
+		/* printf("%lu\n", ft_strlen(map[i])); */
 		i++;
 	}
 	return (map);
@@ -497,35 +512,358 @@ void screenshot()
 	}
 }
 
+void fill_header()
+{
+	header.res = 0;
+	header.no = 0;
+	header.so = 0;
+	header.we = 0;
+	header.ea = 0;
+	header.s = 0;
+	header.f = 0;
+	header.c = 0;
+}
+
+int strs_len(char **strs)
+{
+	int len;
+
+	len = 0;
+	if (strs != 0)
+		while (strs[len] != 0)
+			len++;
+	return (len);
+}
+
+void free_strs(char **strs)
+{
+	int i;
+
+	i = 0;
+	while (strs[i] != 0)
+	{
+		free(strs[i]);
+		i++;
+	}
+	free(strs[i]);
+	free(strs);
+}
+
+int check_header()
+{
+	if (header.res != 1)
+		return (0);
+	if (header.no != 1)
+		return (0);
+	if (header.so != 1)
+		return (0);
+	if (header.we != 1)
+		return (0);
+	if (header.ea != 1)
+		return (0);
+	if (header.s != 1)
+		return (0);
+	if (header.f != 1)
+		return (0);
+	if (header.c != 1)
+		return (0);
+	return (1);
+}
+
+int check_fill_res(int i)
+{
+	int j;
+	char **strs;
+	int resx;
+	int resy;
+
+	j = 0;
+	while (all.map[i][++j] != 0)
+		if ((all.map[i][j] < '0' || all.map[i][j] > '9') && all.map[i][j] != ' ')
+			return (0);
+	j = 0;
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 3)
+		return (0);
+	width = ft_atoi(strs[1]);
+	height = ft_atoi(strs[2]);
+	mlx_get_screen_size(all.win.mlx, &resx, &resy);
+	if (width > resx)
+		width = resx;
+	if (height > resy)
+		height = resy;
+	if (width < 0 || height < 0)
+		return (0);
+	free_strs(strs);
+	header.res++;
+	return (1);
+}
+
+int check_fill_no(int i)
+{
+	char **strs;
+	int fd;
+
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 2)
+		return (0);
+	all.image_n.path = ft_strdup(strs[1]);
+	fd = open(all.image_n.path, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	close (fd);
+	if (all.image_n.path == NULL)
+		return (0);
+	free_strs(strs);
+	header.no++;
+	return (1);
+}
+
+int check_fill_so(int i)
+{
+	char **strs;
+	int fd;
+
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 2)
+		return (0);
+	all.image_s.path = ft_strdup(strs[1]);
+	fd = open(all.image_s.path, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	close (fd);
+	if (all.image_s.path == NULL)
+		return (0);
+	free_strs(strs);
+	header.so++;
+	return (1);
+}
+
+int check_fill_we(int i)
+{
+	char **strs;
+	int fd;
+
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 2)
+		return (0);
+	all.image_w.path = ft_strdup(strs[1]);
+	fd = open(all.image_w.path, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	close (fd);
+	if (all.image_w.path == NULL)
+		return (0);
+	free_strs(strs);
+	header.we++;
+	return (1);
+}
+
+int check_fill_ea(int i)
+{
+	char **strs;
+	int fd;
+
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 2)
+		return (0);
+	all.image_e.path = ft_strdup(strs[1]);
+	fd = open(all.image_e.path, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	close (fd);
+	if (all.image_e.path == NULL)
+		return (0);
+	free_strs(strs);
+	header.ea++;
+	return (1);
+}
+
+int check_fill_s(int i)
+{
+	char **strs;
+	int fd;
+
+	strs = ft_split(all.map[i], ' ');
+	if (strs_len(strs) != 2)
+		return (0);
+	all.sprite.path = ft_strdup(strs[1]);
+	fd = open(all.sprite.path, O_RDONLY);
+	if (fd == -1)
+		return (0);
+	close (fd);
+	if (all.sprite.path == NULL)
+		return (0);
+	free_strs(strs);
+	header.s++;
+	return (1);
+}
+
+int check_one_num(char *str)
+{
+	char **strs;
+	int num;
+
+	strs = ft_split(str, ' ');
+	if (strs_len(strs) != 1)
+		return (-1);
+	num = ft_atoi(strs[0]);
+	free_strs(strs);
+	return (num);
+}
+
+int check_fill_f(int i)
+{
+	char **strs;
+	char *str;
+	int r;
+	int g;
+	int b;
+
+	r = 0;
+	while (all.map[i][++r] != 0)
+		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
+			return (0);
+	str = all.map[i] + 1;
+	strs = ft_split(str, ',');
+	if (strs_len(strs) != 3)
+		return (0);
+	r = check_one_num(strs[0]);
+	g = check_one_num(strs[1]);
+	b = check_one_num(strs[2]);
+	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
+		return (0);
+	floor_color = create_trgb(0, r, g, b);
+	free_strs(strs);
+	header.f++;
+	return (1);
+}
+
+int check_fill_c(int i)
+{
+	char **strs;
+	char *str;
+	int r;
+	int g;
+	int b;
+
+	r = 0;
+	while (all.map[i][++r] != 0)
+		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
+			return (0);
+	str = all.map[i] + 1;
+	strs = ft_split(str, ',');
+	if (strs_len(strs) != 3)
+		return (0);
+	r = check_one_num(strs[0]);
+	g = check_one_num(strs[1]);
+	b = check_one_num(strs[2]);
+	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
+		return (0);
+	ceil_color = create_trgb(0, r, g, b);
+	free_strs(strs);
+	header.c++;
+	return (1);
+}
+
+
+int check_map(int i)
+{
+	int k;
+
+	k = 0;
+	while (all.map[i])
+	{
+		k = 0;
+		while (all.map[i][k])
+		{
+			if (all.map[i][k] != ' ' && all.map[i][k] != '1' && all.map[i][k] != '0' && all.map[i][k] != 'N' && all.map[i][k] != 'W' && all.map[i][k] != 'S' && all.map[i][k] != 'E' && all.map[i][k] != '2')
+				return (0);
+			k++;
+		}
+		i++;
+	}
+	return (1);
+}
+
+int check_line(int i)
+{
+	if (ft_strncmp(all.map[i], "R ", 2) == 0)
+		check_fill_res(i);
+	else if (ft_strncmp(all.map[i], "NO ", 3) == 0)
+		check_fill_no(i);
+	else if (ft_strncmp(all.map[i], "SO ", 3) == 0)
+		check_fill_so(i);
+	else if (ft_strncmp(all.map[i], "WE ", 3) == 0)
+		check_fill_we(i);
+	else if (ft_strncmp(all.map[i], "EA ", 3) == 0)
+		check_fill_ea(i);
+	else if (ft_strncmp(all.map[i], "S ", 2) == 0)
+		check_fill_s(i);
+	else if (ft_strncmp(all.map[i], "F ", 2) == 0)
+		check_fill_f(i);
+	else if (ft_strncmp(all.map[i], "C ", 2) == 0)
+		check_fill_c(i);
+	else
+		return (0);
+	return (1);
+}
+
+int check_cub()
+{
+	int i;
+
+	fill_header();
+	i = 0;
+	while (1 == 1)
+	{
+		printf("%d %d %d %d %d %d %d %d\n", header.res, header.no, header.so, header.we, header.ea, header.s, header.f, header.c);
+		if (ft_strlen(all.map[i]) == 0)
+		{
+			i++;
+			continue;
+		}
+		if (check_line(i) == 0)
+			break;
+		i++;
+	}
+	if (check_header() == 1 && check_map(i) == 1)
+		return (1);
+	else
+		return (0);
+}
+
 int main(int argc, char **argv)
 {
-	char    *e_path = "./image_e.xpm";
-	char	*s_path = "./image_s.xpm";
-	char    *n_path = "./image_n.xpm";
-	char	*w_path = "./image_w.xpm";
-	char	*sprite_path = "./sprite.xpm";
 	int fd;
 
 	fd = open(argv[1], O_RDONLY);
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
+	if (check_cub() == 0)
+	{
+		printf("Ошибка\n");
+		return (0);
+	}
+	else
+		printf("Все круто\n");
 	all.win.win = mlx_new_window(all.win.mlx, width, height, "cub3d");
 	all.win.img = mlx_new_image(all.win.mlx, width, height);
 	all.win.addr = mlx_get_data_addr(all.win.img, &all.win.bpp, &all.win.line_len, &all.win.end);
 
-	all.image_e.img = mlx_xpm_file_to_image(all.win.mlx, e_path, &all.image_e.img_width, &all.image_e.img_height);
+	all.image_e.img = mlx_xpm_file_to_image(all.win.mlx, all.image_e.path, &all.image_e.img_width, &all.image_e.img_height);
 	all.image_e.addr = mlx_get_data_addr(all.image_e.img, &all.image_e.bpp, &all.image_e.line_len, &all.image_e.end);
 
-	all.image_s.img = mlx_xpm_file_to_image(all.win.mlx, s_path, &all.image_s.img_width, &all.image_s.img_height);
+	all.image_s.img = mlx_xpm_file_to_image(all.win.mlx, all.image_s.path, &all.image_s.img_width, &all.image_s.img_height);
 	all.image_s.addr = mlx_get_data_addr(all.image_s.img, &all.image_s.bpp, &all.image_s.line_len, &all.image_s.end);
 
-	all.image_n.img = mlx_xpm_file_to_image(all.win.mlx, n_path, &all.image_n.img_width, &all.image_n.img_height);
+	all.image_n.img = mlx_xpm_file_to_image(all.win.mlx, all.image_n.path, &all.image_n.img_width, &all.image_n.img_height);
 	all.image_n.addr = mlx_get_data_addr(all.image_n.img, &all.image_n.bpp, &all.image_n.line_len, &all.image_n.end);
 
-	all.image_w.img = mlx_xpm_file_to_image(all.win.mlx, w_path, &all.image_w.img_width, &all.image_w.img_height);
+	all.image_w.img = mlx_xpm_file_to_image(all.win.mlx, all.image_w.path, &all.image_w.img_width, &all.image_w.img_height);
 	all.image_w.addr = mlx_get_data_addr(all.image_w.img, &all.image_w.bpp, &all.image_w.line_len, &all.image_w.end);
 
-	all.sprite.img = mlx_xpm_file_to_image(all.win.mlx, sprite_path, &all.sprite.img_width, &all.sprite.img_height);
+	all.sprite.img = mlx_xpm_file_to_image(all.win.mlx, all.sprite.path, &all.sprite.img_width, &all.sprite.img_height);
 	all.sprite.addr = mlx_get_data_addr(all.sprite.img, &all.sprite.bpp, &all.sprite.line_len, &all.sprite.end);
 
 	fill_map_on_screen(&all);
