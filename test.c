@@ -51,30 +51,30 @@ int fill_map_on_screen(t_all *all)
 {
 	int i;
 	int j;
-	int x;
-	int y;
 
 	i = 0;
 	j = 0;
-	x = 0;
-	y = 0;		
 	while (all->map[i])
 	{
-		x = 0;
 		j = 0;
 		while (all->map[i][j])
 		{
-			if (all->map[i][j] == 'N')
+			if (all->map[i][j] == 'N' || all->map[i][j] == 'W' || all->map[i][j] == 'S' || all->map[i][j] == 'E')
 			{
-				all->plr.x = x + SCALE / 2;
-				all->plr.y = y + SCALE / 2;
-				all->plr.dir = 0;
+				all->plr.x = j * SCALE + SCALE / 2;
+				all->plr.y = i * SCALE + SCALE / 2;
+				if (all->map[i][j] == 'E')
+					all->plr.dir = 0;
+				else if (all->map[i][j] == 'S')
+					all->plr.dir = M_PI_2;
+				else if (all->map[i][j] == 'W')
+					all->plr.dir = 3.1415;
+				else if (all->map[i][j] == 'N')
+					all->plr.dir = - M_PI_2;
 				all->map[i][j] = '0';
 			}
-			x += SCALE;
 			j++;
 		}
-		y += SCALE;
 		i++;
 	}
 	return (1);
@@ -408,7 +408,6 @@ char	**parcer(int fd)
 	t_list *map_list;
 
 	map_list = NULL;
-
 	while (get_next_line(fd, &line))
 		ft_lstadd_back(&map_list, ft_lstnew(line));
 	ft_lstadd_back(&map_list, ft_lstnew(line));
@@ -420,12 +419,7 @@ char	**parcer(int fd)
 		map_list = map_list->next;
 		i++;
 	}
-	i = 0;
-	while (map[i])
-	{
-		/* printf("%lu\n", ft_strlen(map[i])); */
-		i++;
-	}
+	map[i - 1] = NULL;
 	return (map);
 }
 
@@ -766,29 +760,70 @@ int check_fill_c(int i)
 	return (1);
 }
 
+int check_circuit(int i)
+{
+	int j;
+	int i_prev;
+	int j_prev;
+	int i_temp;
+	int j_temp;
+	int start;
+
+	j = 0;
+	start = i;
+	while (all.map[i][j] != '1')
+		j++;
+	i_temp = i;
+	j_temp = j;
+	i_prev = i;
+	j_prev = j;
+	j++;
+	while (i_temp != i && j_temp != j)
+	{
+		if (j_prev < j)
+		{
+			if (start != i)
+				if ()
+		}
+	}
+	return (1);
+}
 
 int check_map(int i)
 {
 	int k;
+	int temp_i;
 
+	temp_i = i;
 	k = 0;
-	while (all.map[i])
+	while (all.map[i] != 0)
 	{
 		k = 0;
+		if (ft_strlen(all.map[i]) == 0 && all.map[i] != 0)
+		{
+			printf("%d ---- %s\n", i, all.map[i]);
+			return (0);
+		}
 		while (all.map[i][k])
 		{
 			if (all.map[i][k] != ' ' && all.map[i][k] != '1' && all.map[i][k] != '0' && all.map[i][k] != 'N' && all.map[i][k] != 'W' && all.map[i][k] != 'S' && all.map[i][k] != 'E' && all.map[i][k] != '2')
+			{
+				printf("%d\n", i);
 				return (0);
+			}
 			k++;
 		}
 		i++;
 	}
+	check_circuit(temp_i);
 	return (1);
 }
 
 int check_line(int i)
 {
-	if (ft_strncmp(all.map[i], "R ", 2) == 0)
+	if (ft_strlen(all.map[i]) == 0)
+		return (1);
+	else if (ft_strncmp(all.map[i], "R ", 2) == 0)
 		check_fill_res(i);
 	else if (ft_strncmp(all.map[i], "NO ", 3) == 0)
 		check_fill_no(i);
@@ -815,16 +850,9 @@ int check_cub()
 
 	fill_header();
 	i = 0;
-	while (1 == 1)
+	while (check_line(i) != 0)
 	{
 		printf("%d %d %d %d %d %d %d %d\n", header.res, header.no, header.so, header.we, header.ea, header.s, header.f, header.c);
-		if (ft_strlen(all.map[i]) == 0)
-		{
-			i++;
-			continue;
-		}
-		if (check_line(i) == 0)
-			break;
 		i++;
 	}
 	if (check_header() == 1 && check_map(i) == 1)
