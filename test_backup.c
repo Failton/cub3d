@@ -772,49 +772,109 @@ void swap_prev(int *i, int *j, int *i_prev, int *j_prev)
 	*j_prev = temp;
 }
 
+int check_zeros(int i)
+{
+	int j;
+	int temp_i;
+
+	temp_i = i;
+	j = 0;
+	while (all.map[i] != 0)
+	{
+		i++;
+	}
+	check_circuit(temp_i, i - 1);
+	return (1);
+
+}
+
 int check_circuit(int i, int end)
 {
 	int j;
+	int i_prev;
+	int j_prev;
+	int i_temp;
+	int j_temp;
 	int start;
 
 	j = 0;
 	start = i;
-	while (all.map[i] != 0)
-	{
-		j = 0;
-		while (all.map[i][j] != 0)
-		{
-			if (all.map[i][j] == '0' || all.map[i][j] == '2' || all.map[i][j] == 'N' || all.map[i][j] == 'W' || all.map[i][j] == 'S' || all.map[i][j] == 'E')
-			{
-				printf("q\n");
-				// 1
-				if ((i == start) || (j == 0) || (j > (int)ft_strlen(all.map[i - 1])) || all.map[i - 1][j - 1] == ' ')
-					return (0);
-				// 2
-				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 1) || all.map[i - 1][j] == ' ')
-					return (0);
-				// 3
-				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 2) || all.map[i - 1][j + 1] == ' ')
-					return (0);
-				// 4
-				if ((j > (int)ft_strlen(all.map[i]) - 2) || all.map[i][j + 1] == ' ')
-					return (0);
-				//5
-				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 2) || all.map[i + 1][j + 1] == ' ')
-					return (0);
-				//6
-				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 1) || all.map[i + 1][j] == ' ')
-					return (0);
-				//7
-				if ((i == end) || (j == 0) || (j > (int)ft_strlen(all.map[i + 1])) || all.map[i + 1][j - 1] == ' ')
-					return (0);
-				//8
-				if ((j == 0) || (j > (int)ft_strlen(all.map[i])) || all.map[i][j - 1] == ' ')
-					return (0);
-			}
-			j++;
-		}
+	while (all.map[i][j] != '1')
+		j++;
+	i_temp = i;
+	j_temp = j;
+	i_prev = i;
+	j_prev = j;
+	if ((j < (int)ft_strlen(all.map[i]) - 1) && all.map[i][j + 1] == '1')
+		j++;
+	else if ((i != end) && (j < (int)ft_strlen(all.map[i + 1])) && all.map[i + 1][j] == '1')
 		i++;
+	while (i_temp != i || j_temp != j)
+	{
+		if (j_prev < j)
+		{
+			if ((i != start) && (j < (int)ft_strlen(all.map[i - 1])) && all.map[i - 1][j] == '1')
+				i--;
+			else if ((j < (int)ft_strlen(all.map[i]) - 1) && all.map[i][j + 1] == '1')
+				j++;
+			else if ((i != end) && (j < (int)ft_strlen(all.map[i + 1])) && all.map[i + 1][j] == '1')
+				i++;
+			else
+			{
+				swap_prev(&i, &j, &i_prev, &j_prev);
+				j_prev--;
+			}
+			j_prev++;
+			printf("[%d][%d] - l\n", i, j);
+		}
+		else if (i_prev < i)
+		{
+			if ((j < (int)ft_strlen(all.map[i]) - 1) && all.map[i][j + 1] == '1')
+				j++;
+			else if ((i != end) && (j < (int)ft_strlen(all.map[i + 1])) && all.map[i + 1][j] == '1')
+				i++;
+			else if ((j != 0) && all.map[i][j - 1] == '1')
+				j--;
+			else
+			{
+				swap_prev(&i, &j, &i_prev, &j_prev);
+				i_prev--;
+			}
+			i_prev++;
+			printf("[%d][%d] - u\n", i, j);
+		}
+		else if (j_prev > j)
+		{
+			if ((i != end) && (j < (int)ft_strlen(all.map[i + 1])) && all.map[i + 1][j] == '1')
+				i++;
+			else if ((j != 0) && all.map[i][j - 1] == '1')
+				j--;
+			else if ((i != start) && (j < (int)ft_strlen(all.map[i - 1])) && all.map[i - 1][j] == '1')
+				i--;
+			else
+			{
+				swap_prev(&i, &j, &i_prev, &j_prev);
+				j_prev++;
+			}
+			j_prev--;
+			printf("[%d][%d] - r\n", i, j);
+		}
+		else if (i_prev > i)
+		{
+			if ((j != 0) && all.map[i][j - 1] == '1')
+				j--;
+			else if ((i != start) && (j < (int)ft_strlen(all.map[i - 1])) && all.map[i - 1][j] == '1')
+				i--;
+			else if ((j < (int)ft_strlen(all.map[i]) - 1) && all.map[i][j + 1] == '1')
+				j++;
+			else
+			{
+				swap_prev(&i, &j, &i_prev, &j_prev);
+				i_prev++;
+			}
+			i_prev--;
+			printf("[%d][%d] - d\n", i, j);
+		}
 	}
 	return (1);
 }
@@ -845,8 +905,7 @@ int check_map(int i)
 		}
 		i++;
 	}
-	if (check_circuit(temp_i, i - 1) == 0)
-		return (0);
+	check_circuit(temp_i, i - 1);
 	return (1);
 }
 

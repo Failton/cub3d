@@ -1,3 +1,15 @@
+
+R 900 600
+NO ./image_n.xpm
+SO ./image_s.xpm
+WE ./image_w.xpm
+EA ./image_e.xpm
+S ./sprite.xpm
+F 255,255,255
+C 0,0,255
+
+
+
 111111111111111
 100000000000001
 100000000000011
