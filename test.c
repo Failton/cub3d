@@ -601,6 +601,8 @@ int check_fill_no(int i)
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (0);
+	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
+		return (0);
 	all.image_n.path = ft_strdup(strs[1]);
 	fd = open(all.image_n.path, O_RDONLY);
 	if (fd == -1)
@@ -620,6 +622,8 @@ int check_fill_so(int i)
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
+		return (0);
+	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (0);
 	all.image_s.path = ft_strdup(strs[1]);
 	fd = open(all.image_s.path, O_RDONLY);
@@ -641,6 +645,8 @@ int check_fill_we(int i)
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (0);
+	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
+		return (0);
 	all.image_w.path = ft_strdup(strs[1]);
 	fd = open(all.image_w.path, O_RDONLY);
 	if (fd == -1)
@@ -661,6 +667,8 @@ int check_fill_ea(int i)
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (0);
+	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
+		return (0);
 	all.image_e.path = ft_strdup(strs[1]);
 	fd = open(all.image_e.path, O_RDONLY);
 	if (fd == -1)
@@ -680,6 +688,8 @@ int check_fill_s(int i)
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
+		return (0);
+	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (0);
 	all.sprite.path = ft_strdup(strs[1]);
 	fd = open(all.sprite.path, O_RDONLY);
@@ -819,33 +829,59 @@ int check_circuit(int i, int end)
 	return (1);
 }
 
-int check_map(int i)
+int check_player(int i)
 {
-	int k;
+	int j;
+	int count;
+
+	count = 0;
+	j = 0;
+	while (all.map[i] != 0)
+	{
+		j = 0;
+		while (all.map[i][j] != 0)
+		{
+			if (all.map[i][j] == 'N' || all.map[i][j] == 'W' || all.map[i][j] == 'S' || all.map[i][j] == 'E')
+				count++;
+			j++;
+		}
+		i++;
+	}
+	if (count != 1)
+		return (0);
+	return (1);
+}
+
+int check_symbols(int i)
+{
+	int j;
 	int temp_i;
 
 	temp_i = i;
-	k = 0;
+	j = 0;
 	while (all.map[i] != 0)
 	{
-		k = 0;
-		if (ft_strlen(all.map[i]) == 0 && all.map[i] != 0)
-		{
-			printf("%d ---- %s\n", i, all.map[i]);
+		j = 0;
+		if (ft_strlen(all.map[i]) == 0)
 			return (0);
-		}
-		while (all.map[i][k])
+		while (all.map[i][j])
 		{
-			if (all.map[i][k] != ' ' && all.map[i][k] != '1' && all.map[i][k] != '0' && all.map[i][k] != 'N' && all.map[i][k] != 'W' && all.map[i][k] != 'S' && all.map[i][k] != 'E' && all.map[i][k] != '2')
-			{
-				printf("%d\n", i);
+			if (all.map[i][j] != ' ' && all.map[i][j] != '1' && all.map[i][j] != '0' && all.map[i][j] != 'N' && all.map[i][j] != 'W' && all.map[i][j] != 'S' && all.map[i][j] != 'E' && all.map[i][j] != '2')
 				return (0);
-			}
-			k++;
+			j++;
 		}
 		i++;
 	}
 	if (check_circuit(temp_i, i - 1) == 0)
+		return (0);
+	return (1);
+}
+
+int check_map(int i)
+{
+	if (check_symbols(i) == 0)
+		return (0);
+	if (check_player(i) == 0)
 		return (0);
 	return (1);
 }
@@ -932,7 +968,7 @@ int main(int argc, char **argv)
 	if (argc == 3)
 		if (ft_strncmp(argv[2], "--save", 7) == 0)
 			screenshot();
-	mlx_hook(all.win.win, 17, 0L, close_win, &all);
+	mlx_hook(all.win.win, 33, 0L, close_win, &all);
 	mlx_hook(all.win.win, 2, 1L<<0, key_hook, &all);
 	mlx_loop(all.win.mlx);
 }
