@@ -352,7 +352,7 @@ void	cast_ray(t_all *all)
 
 int	key_hook(int keycode, t_all *all)
 {
-	/* printf("%d\n", keycode); */
+	printf("%d\n", keycode);
 	if (keycode == 13 || keycode == 119)
 	{
 		all->plr.x += cos(all->plr.dir) * 0.4 * SCALE;
@@ -363,19 +363,19 @@ int	key_hook(int keycode, t_all *all)
 		all->plr.x -= cos(all->plr.dir) * 0.4 * SCALE;
 		all->plr.y -= sin(all->plr.dir) * 0.4 * SCALE;
 	}
-	if (keycode == 123 || keycode == 65361)
+	if (keycode == 0 || keycode == 97)
 	{
 		all->plr.x += sin(all->plr.dir) * 0.4 * SCALE;
 		all->plr.y -= cos(all->plr.dir) * 0.4 * SCALE;
 	}
-	if (keycode == 124 || keycode == 65363)
+	if (keycode == 2 || keycode == 100)
 	{
 		all->plr.x -= sin(all->plr.dir) * 0.4 * SCALE;
 		all->plr.y += cos(all->plr.dir) * 0.4 * SCALE;
 	}
-	if (keycode == 2 || keycode == 100)
+	if (keycode == 124 || keycode == 65363)
 		all->plr.dir += 0.15;
-	if (keycode == 0 || keycode == 97)
+	if (keycode == 123 || keycode == 65361)
 		all->plr.dir -= 0.15;
 	if (all->plr.dir <= - 3 * M_PI_2)
 		all->plr.dir += 2 * M_PI;
@@ -877,11 +877,27 @@ int check_symbols(int i)
 	return (1);
 }
 
+int check_empty_line(int i)
+{
+	int j;
+
+	j = 0;
+	while (all.map[i][j])
+	{
+		if (all.map[i][j] != ' ')
+			return (1);
+		j++;
+	}
+	return (0);
+}
+
 int check_map(int i)
 {
 	if (check_symbols(i) == 0)
 		return (0);
 	if (check_player(i) == 0)
+		return (0);
+	if (check_empty_line(i) == 0)
 		return (0);
 	return (1);
 }
@@ -920,6 +936,8 @@ int check_cub()
 	while (check_line(i) != 0)
 	{
 		printf("%d %d %d %d %d %d %d %d\n", header.res, header.no, header.so, header.we, header.ea, header.s, header.f, header.c);
+		if (all.map[i] == 0)
+			return (0);
 		i++;
 	}
 	if (check_header() == 1 && check_map(i) == 1)
