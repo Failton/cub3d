@@ -1,6 +1,5 @@
 
 
-R 900 600
 NO ./image_n.xpm
 SO ./image_s.xpm
 WE ./image_w.xpm

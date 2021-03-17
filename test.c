@@ -1,6 +1,7 @@
 #include "mlx.h"
 #include "cub3d.h"
 #include "libft.h"
+#include "errors.h"
 
 
 int	width = 900;
@@ -543,28 +544,28 @@ void free_strs(char **strs)
 	free(strs);
 }
 
-int check_header()
+char *check_header()
 {
 	if (header.res != 1)
-		return (0);
+		return (CONF);
 	if (header.no != 1)
-		return (0);
+		return (CONF);
 	if (header.so != 1)
-		return (0);
+		return (CONF);
 	if (header.we != 1)
-		return (0);
+		return (CONF);
 	if (header.ea != 1)
-		return (0);
+		return (CONF);
 	if (header.s != 1)
-		return (0);
+		return (CONF);
 	if (header.f != 1)
-		return (0);
+		return (CONF);
 	if (header.c != 1)
-		return (0);
-	return (1);
+		return (CONF);
+	return ("1");
 }
 
-int check_fill_res(int i)
+char *check_fill_res(int i)
 {
 	int j;
 	char **strs;
@@ -574,11 +575,11 @@ int check_fill_res(int i)
 	j = 0;
 	while (all.map[i][++j] != 0)
 		if ((all.map[i][j] < '0' || all.map[i][j] > '9') && all.map[i][j] != ' ')
-			return (0);
+			return (RES);
 	j = 0;
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 3)
-		return (0);
+		return (RES);
 	width = ft_atoi(strs[1]);
 	height = ft_atoi(strs[2]);
 	mlx_get_screen_size(all.win.mlx, &resx, &resy);
@@ -587,120 +588,120 @@ int check_fill_res(int i)
 	if (height > resy)
 		height = resy;
 	if (width < 0 || height < 0)
-		return (0);
+		return (RES);
 	free_strs(strs);
 	header.res++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_no(int i)
+char *check_fill_no(int i)
 {
 	char **strs;
 	int fd;
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
-		return (0);
+		return (NO);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
-		return (0);
+		return (NO);
 	all.image_n.path = ft_strdup(strs[1]);
 	fd = open(all.image_n.path, O_RDONLY);
 	if (fd == -1)
-		return (0);
+		return (PATH_NO);
 	close (fd);
 	if (all.image_n.path == NULL)
-		return (0);
+		return (NO);
 	free_strs(strs);
 	header.no++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_so(int i)
+char *check_fill_so(int i)
 {
 	char **strs;
 	int fd;
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
-		return (0);
+		return (SO);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
-		return (0);
+		return (SO);
 	all.image_s.path = ft_strdup(strs[1]);
 	fd = open(all.image_s.path, O_RDONLY);
 	if (fd == -1)
-		return (0);
+		return (PATH_SO);
 	close (fd);
 	if (all.image_s.path == NULL)
-		return (0);
+		return (SO);
 	free_strs(strs);
 	header.so++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_we(int i)
+char *check_fill_we(int i)
 {
 	char **strs;
 	int fd;
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
-		return (0);
+		return (WE);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
-		return (0);
+		return (WE);
 	all.image_w.path = ft_strdup(strs[1]);
 	fd = open(all.image_w.path, O_RDONLY);
 	if (fd == -1)
-		return (0);
+		return (PATH_WE);
 	close (fd);
 	if (all.image_w.path == NULL)
-		return (0);
+		return (WE);
 	free_strs(strs);
 	header.we++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_ea(int i)
+char *check_fill_ea(int i)
 {
 	char **strs;
 	int fd;
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
-		return (0);
+		return (EA);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
-		return (0);
+		return (EA);
 	all.image_e.path = ft_strdup(strs[1]);
 	fd = open(all.image_e.path, O_RDONLY);
 	if (fd == -1)
-		return (0);
+		return (PATH_EA);
 	close (fd);
 	if (all.image_e.path == NULL)
-		return (0);
+		return (EA);
 	free_strs(strs);
 	header.ea++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_s(int i)
+char *check_fill_s(int i)
 {
 	char **strs;
 	int fd;
 
 	strs = ft_split(all.map[i], ' ');
 	if (strs_len(strs) != 2)
-		return (0);
+		return (S);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
-		return (0);
+		return (S);
 	all.sprite.path = ft_strdup(strs[1]);
 	fd = open(all.sprite.path, O_RDONLY);
 	if (fd == -1)
-		return (0);
+		return (PATH_S);
 	close (fd);
 	if (all.sprite.path == NULL)
-		return (0);
+		return (S);
 	free_strs(strs);
 	header.s++;
-	return (1);
+	return ("1");
 }
 
 int check_one_num(char *str)
@@ -716,7 +717,7 @@ int check_one_num(char *str)
 	return (num);
 }
 
-int check_fill_f(int i)
+char *check_fill_f(int i)
 {
 	char **strs;
 	char *str;
@@ -727,23 +728,23 @@ int check_fill_f(int i)
 	r = 0;
 	while (all.map[i][++r] != 0)
 		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
-			return (0);
+			return (FLOOR);
 	str = all.map[i] + 1;
 	strs = ft_split(str, ',');
 	if (strs_len(strs) != 3)
-		return (0);
+		return (FLOOR);
 	r = check_one_num(strs[0]);
 	g = check_one_num(strs[1]);
 	b = check_one_num(strs[2]);
 	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
-		return (0);
+		return (FLOOR);
 	floor_color = create_trgb(0, r, g, b);
 	free_strs(strs);
 	header.f++;
-	return (1);
+	return ("1");
 }
 
-int check_fill_c(int i)
+char *check_fill_c(int i)
 {
 	char **strs;
 	char *str;
@@ -754,20 +755,20 @@ int check_fill_c(int i)
 	r = 0;
 	while (all.map[i][++r] != 0)
 		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
-			return (0);
+			return (CEIL);
 	str = all.map[i] + 1;
 	strs = ft_split(str, ',');
 	if (strs_len(strs) != 3)
-		return (0);
+		return (CEIL);
 	r = check_one_num(strs[0]);
 	g = check_one_num(strs[1]);
 	b = check_one_num(strs[2]);
 	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
-		return (0);
+		return (CEIL);
 	ceil_color = create_trgb(0, r, g, b);
 	free_strs(strs);
 	header.c++;
-	return (1);
+	return ("1");
 }
 
 void swap_prev(int *i, int *j, int *i_prev, int *j_prev)
@@ -782,7 +783,7 @@ void swap_prev(int *i, int *j, int *i_prev, int *j_prev)
 	*j_prev = temp;
 }
 
-int check_circuit(int i, int end)
+char *check_circuit(int i, int end)
 {
 	int j;
 	int start;
@@ -799,37 +800,37 @@ int check_circuit(int i, int end)
 				printf("q\n");
 				// 1
 				if ((i == start) || (j == 0) || (j > (int)ft_strlen(all.map[i - 1])) || all.map[i - 1][j - 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				// 2
 				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 1) || all.map[i - 1][j] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				// 3
 				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 2) || all.map[i - 1][j + 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				// 4
 				if ((j > (int)ft_strlen(all.map[i]) - 2) || all.map[i][j + 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				//5
 				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 2) || all.map[i + 1][j + 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				//6
 				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 1) || all.map[i + 1][j] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				//7
 				if ((i == end) || (j == 0) || (j > (int)ft_strlen(all.map[i + 1])) || all.map[i + 1][j - 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 				//8
 				if ((j == 0) || (j > (int)ft_strlen(all.map[i])) || all.map[i][j - 1] == ' ')
-					return (0);
+					return (BAD_CIRCUIT);
 			}
 			j++;
 		}
 		i++;
 	}
-	return (1);
+	return ("1");
 }
 
-int check_player(int i)
+char *check_player(int i)
 {
 	int j;
 	int count;
@@ -848,11 +849,11 @@ int check_player(int i)
 		i++;
 	}
 	if (count != 1)
-		return (0);
-	return (1);
+		return (PLAYER);
+	return ("1");
 }
 
-int check_symbols(int i)
+char *check_symbols(int i)
 {
 	int j;
 	int temp_i;
@@ -863,99 +864,107 @@ int check_symbols(int i)
 	{
 		j = 0;
 		if (ft_strlen(all.map[i]) == 0)
-			return (0);
+			return (MAP_EMPTY_LINE);
 		while (all.map[i][j])
 		{
 			if (all.map[i][j] != ' ' && all.map[i][j] != '1' && all.map[i][j] != '0' && all.map[i][j] != 'N' && all.map[i][j] != 'W' && all.map[i][j] != 'S' && all.map[i][j] != 'E' && all.map[i][j] != '2')
-				return (0);
+				return (MAP_WRONG_SYMBOLS);
 			j++;
 		}
 		i++;
 	}
-	if (check_circuit(temp_i, i - 1) == 0)
-		return (0);
-	return (1);
+	if (check_circuit(temp_i, i - 1)[0] != '1')
+		return (BAD_CIRCUIT);
+	return ("1");
 }
 
-int check_empty_line(int i)
+char *check_empty_line(int i)
 {
 	int j;
 
 	j = 0;
 	while (all.map[i][j])
 	{
-		if (all.map[i][j] != ' ')
-			return (1);
+		if (all.map[i][j] != ' ' && all.map[i][j] != '\0')
+			return (MAP_SPACE_LINE);
 		j++;
 	}
-	return (0);
+	return ("1");
 }
 
-int check_map(int i)
+char *check_map(int i)
 {
-	if (check_symbols(i) == 0)
-		return (0);
-	if (check_player(i) == 0)
-		return (0);
-	if (check_empty_line(i) == 0)
-		return (0);
-	return (1);
+	if (check_symbols(i)[0] != '1')
+		return (check_symbols(i));
+	if (check_player(i)[0] != '1')
+		return (check_player(i));
+	if (check_empty_line(i)[0] != '1')
+		return (check_empty_line(i));
+	return ("1");
 }
 
-int check_line(int i)
+char *check_line(int i)
 {
+	char *answer;
+
 	if (ft_strlen(all.map[i]) == 0)
-		return (1);
+		return ("1");
 	else if (ft_strncmp(all.map[i], "R ", 2) == 0)
-		check_fill_res(i);
+		answer = check_fill_res(i);
 	else if (ft_strncmp(all.map[i], "NO ", 3) == 0)
-		check_fill_no(i);
+		answer = check_fill_no(i);
 	else if (ft_strncmp(all.map[i], "SO ", 3) == 0)
-		check_fill_so(i);
+		answer = check_fill_so(i);
 	else if (ft_strncmp(all.map[i], "WE ", 3) == 0)
-		check_fill_we(i);
+		answer = check_fill_we(i);
 	else if (ft_strncmp(all.map[i], "EA ", 3) == 0)
-		check_fill_ea(i);
+		answer = check_fill_ea(i);
 	else if (ft_strncmp(all.map[i], "S ", 2) == 0)
-		check_fill_s(i);
+		answer = check_fill_s(i);
 	else if (ft_strncmp(all.map[i], "F ", 2) == 0)
-		check_fill_f(i);
+		answer = check_fill_f(i);
 	else if (ft_strncmp(all.map[i], "C ", 2) == 0)
-		check_fill_c(i);
+		answer = check_fill_c(i);
 	else
-		return (0);
-	return (1);
+		return ("0");
+	if (answer[0] != '1')
+		return (answer);
+	return ("1");
 }
 
-int check_cub()
+char *check_cub()
 {
 	int i;
 
 	fill_header();
 	i = 0;
-	while (check_line(i) != 0)
+	while (check_line(i)[0] == '1')
 	{
 		printf("%d %d %d %d %d %d %d %d\n", header.res, header.no, header.so, header.we, header.ea, header.s, header.f, header.c);
 		if (all.map[i] == 0)
-			return (0);
+			return ("shiiit");
 		i++;
 	}
-	if (check_header() == 1 && check_map(i) == 1)
-		return (1);
+	if (check_header()[0] != '1' )
+		return (check_header());
+	if (check_map(1)[0] != '1')
+		return (check_map(i));
 	else
-		return (0);
+		return ("1");
 }
 
 int main(int argc, char **argv)
 {
 	int fd;
+	char *checker;
 
 	fd = open(argv[1], O_RDONLY);
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
-	if (check_cub() == 0)
+	checker = check_cub();
+	if (checker[0] != '1')
 	{
-		printf("Ошибка\n");
+		printf("Error: %s", checker);
 		return (0);
 	}
 	else
