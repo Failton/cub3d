@@ -31,5 +31,8 @@
 # define MAP_WRONG_SYMBOLS "Wrong symbols in the map"
 # define PLAYER "No player or multiple players"
 # define BAD_CIRCUIT "The map is not surrounded by a walls"
+# define EMPTY_FILE "Empty file"
+# define WRONG_LINE "Wrong line"
+# define NO_MAP "No map"
 
 #endif

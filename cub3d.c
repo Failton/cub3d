@@ -58,6 +58,7 @@ void free_map()
 		free(all.map[i]);
 		i++;
 	}
+	free(all.map[i]);
 	free(all.map);
 }
 
@@ -443,7 +444,6 @@ char	**parcer(int fd)
 		map_list = map_list->next;
 		i++;
 	}
-	map[i - 1] = NULL;
 	return (map);
 }
 
@@ -528,6 +528,7 @@ void screenshot()
 		}
 		y--;
 	}
+	close(fd);
 }
 
 void fill_header()
@@ -565,6 +566,27 @@ void free_strs(char **strs)
 	}
 	free(strs[i]);
 	free(strs);
+}
+
+int check_wrong_line()
+{
+	if (header.res > 1)
+		return (0);
+	if (header.no > 1)
+		return (0);
+	if (header.so > 1)
+		return (0);
+	if (header.we > 1)
+		return (0);
+	if (header.ea > 1)
+		return (0);
+	if (header.s > 1)
+		return (0);
+	if (header.f > 1)
+		return (0);
+	if (header.c > 1)
+		return (0);
+	return (1);
 }
 
 char *check_header()
@@ -636,6 +658,7 @@ char *check_fill_no(int i)
 		return (NO);
 	free_strs(strs);
 	header.no++;
+	close(fd);
 	return ("1");
 }
 
@@ -658,6 +681,7 @@ char *check_fill_so(int i)
 		return (SO);
 	free_strs(strs);
 	header.so++;
+	close(fd);
 	return ("1");
 }
 
@@ -680,6 +704,7 @@ char *check_fill_we(int i)
 		return (WE);
 	free_strs(strs);
 	header.we++;
+	close(fd);
 	return ("1");
 }
 
@@ -702,6 +727,7 @@ char *check_fill_ea(int i)
 		return (EA);
 	free_strs(strs);
 	header.ea++;
+	close(fd);
 	return ("1");
 }
 
@@ -724,6 +750,7 @@ char *check_fill_s(int i)
 		return (S);
 	free_strs(strs);
 	header.s++;
+	close(fd);
 	return ("1");
 }
 
@@ -882,40 +909,54 @@ char *check_symbols(int i)
 
 char *check_map(int i)
 {
-	if (check_symbols(i)[0] != '1')
-		return (check_symbols(i));
 	if (check_player(i)[0] != '1')
 		return (check_player(i));
+	if (check_symbols(i)[0] != '1')
+		return (check_symbols(i));
 	return ("1");
 }
 
-char *check_ident(int i)
+char *check_ident(int *i)
 {
 	char *answer;
 
-	if (ft_strlen(all.map[i]) == 0)
+	if (ft_strlen(all.map[*i]) == 0)
 		return ("1");
-	else if (ft_strncmp(all.map[i], "R ", 2) == 0)
-		answer = check_fill_res(i);
-	else if (ft_strncmp(all.map[i], "NO ", 3) == 0)
-		answer = check_fill_no(i);
-	else if (ft_strncmp(all.map[i], "SO ", 3) == 0)
-		answer = check_fill_so(i);
-	else if (ft_strncmp(all.map[i], "WE ", 3) == 0)
-		answer = check_fill_we(i);
-	else if (ft_strncmp(all.map[i], "EA ", 3) == 0)
-		answer = check_fill_ea(i);
-	else if (ft_strncmp(all.map[i], "S ", 2) == 0)
-		answer = check_fill_s(i);
-	else if (ft_strncmp(all.map[i], "F ", 2) == 0)
-		answer = check_fill_f(i);
-	else if (ft_strncmp(all.map[i], "C ", 2) == 0)
-		answer = check_fill_c(i);
+	else if (ft_strncmp(all.map[*i], "R ", 2) == 0)
+		answer = check_fill_res(*i);
+	else if (ft_strncmp(all.map[*i], "NO ", 3) == 0)
+		answer = check_fill_no(*i);
+	else if (ft_strncmp(all.map[*i], "SO ", 3) == 0)
+		answer = check_fill_so(*i);
+	else if (ft_strncmp(all.map[*i], "WE ", 3) == 0)
+		answer = check_fill_we(*i);
+	else if (ft_strncmp(all.map[*i], "EA ", 3) == 0)
+		answer = check_fill_ea(*i);
+	else if (ft_strncmp(all.map[*i], "S ", 2) == 0)
+		answer = check_fill_s(*i);
+	else if (ft_strncmp(all.map[*i], "F ", 2) == 0)
+		answer = check_fill_f(*i);
+	else if (ft_strncmp(all.map[*i], "C ", 2) == 0)
+		answer = check_fill_c(*i);
 	else
 		return ("0");
 	if (answer[0] != '1')
 		return (answer);
 	return ("1");
+}
+
+int check_empty_line(int i)
+{
+	int j;
+
+	j = 0;
+	while (all.map[i][j])
+	{
+		if (all.map[i][j] != ' ')
+			return (1);
+		j++;
+	}
+	return (0);
 }
 
 char *check_cub()
@@ -924,16 +965,29 @@ char *check_cub()
 
 	fill_header();
 	i = 0;
-	while (check_ident(i)[0] == '1')
+	if (all.map[i] == 0)
+		return (EMPTY_FILE);
+	while (check_ident(&i)[0] == '1')
+	{
+		if (all.map[i] == 0)
+			break;
 		i++;
-	if (check_ident(i)[0] != '0')
-		return (check_ident(i));
-	if (check_header()[0] != '1' )
+	}
+	if (all.map[i] == 0 && check_header()[0] != '1')
 		return (check_header());
-	if (check_map(1)[0] != '1')
+	if (check_ident(&i)[0] == '1')
+		return (NO_MAP);
+	if (check_empty_line(i) == 0)
+		return (WRONG_LINE);
+	if (check_ident(&i)[0] == '0' && check_wrong_line() == 1 && check_header()[0] != '1')
+		return (WRONG_LINE);
+	if (check_ident(&i)[0] != '0')
+		return (check_ident(&i));	
+	if (check_header()[0] != '1')
+		return (check_header());
+	if (check_map(i)[0] != '1')
 		return (check_map(i));
-	else
-		return ("1");
+	return ("1");
 }
 
 int main(int argc, char **argv)
@@ -945,6 +999,15 @@ int main(int argc, char **argv)
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
 	checker = check_cub();
+	if (checker[0] != '1')
+	{
+		close(fd);
+		free_map();
+		printf("Error: %s", checker);
+		return (0);
+	}
+	else
+		printf("Всё норм, не забудь убрать!\n");
 	all.win.win = mlx_new_window(all.win.mlx, width, height, "cub3d");
 	all.win.img = mlx_new_image(all.win.mlx, width, height);
 	all.win.addr = mlx_get_data_addr(all.win.img, &all.win.bpp, &all.win.line_len, &all.win.end);
@@ -963,17 +1026,12 @@ int main(int argc, char **argv)
 
 	all.sprite.img = mlx_xpm_file_to_image(all.win.mlx, all.sprite.path, &all.sprite.img_width, &all.sprite.img_height);
 	all.sprite.addr = mlx_get_data_addr(all.sprite.img, &all.sprite.bpp, &all.sprite.line_len, &all.sprite.end);
-	if (checker[0] != '1')
-	{
-		printf("Error: %s", checker);
-		close_win();
-		return (0);
-	}
 	fill_map_on_screen(&all);
 	cast_ray(&all);
 	mlx_put_image_to_window(all.win.mlx, all.win.win, all.win.img, 0, 0);
 	if ((argc == 3) && ft_strncmp(argv[2], "--save", 7) == 0)
 	{
+		close(fd);
 		screenshot();
 		close_win();
 		return (1);
