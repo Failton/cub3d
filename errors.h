@@ -29,7 +29,6 @@
 # define CONF "Empty or multiple identifier"
 # define MAP_EMPTY_LINE "Empty line in the map"
 # define MAP_WRONG_SYMBOLS "Wrong symbols in the map"
-# define MAP_SPACE_LINE "Line with spaces"
 # define PLAYER "No player or multiple players"
 # define BAD_CIRCUIT "The map is not surrounded by a walls"
 
