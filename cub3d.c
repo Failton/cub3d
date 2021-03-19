@@ -48,20 +48,6 @@ void	my_mlx_pixel_put(t_win all, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-void free_map()
-{
-	int i;
-
-	i = 0;
-	while (all.map[i] != 0)
-	{
-		free(all.map[i]);
-		i++;
-	}
-	free(all.map[i]);
-	free(all.map);
-}
-
 int	close_win()
 {
 	free(all.image_n.path);
@@ -76,7 +62,7 @@ int	close_win()
 	mlx_destroy_image(all.win.mlx, all.sprite.img);
 	mlx_clear_window(all.win.mlx, all.win.win);
 	mlx_destroy_window(all.win.mlx, all.win.win);
-	free_map();
+	//free_map();
 	exit(1);
 	return (1);
 }
@@ -416,7 +402,10 @@ int	key_hook(int keycode, t_all *all)
 	if (all->plr.dir >= M_PI)
 		all->plr.dir -= 2 * M_PI;
 	if (keycode == 65307)
+	{
+	//	free_map();
 		close_win();
+	}
 	mlx_destroy_image(all->win.mlx, all->win.img);
 	all->win.img = mlx_new_image(all->win.mlx, width, height);
 	all->win.addr = mlx_get_data_addr(all->win.img, &all->win.bpp, &all->win.line_len, &all->win.end);
@@ -431,6 +420,7 @@ char	**parcer(int fd)
 	char *line;
 	int i;
 	t_list *map_list;
+	t_list *temp;
 
 	map_list = NULL;
 	while (get_next_line(fd, &line))
@@ -441,9 +431,13 @@ char	**parcer(int fd)
 	while (map_list)
 	{
 		map[i] = map_list->content;
+		temp = map_list;
 		map_list = map_list->next;
+		free(temp);
 		i++;
 	}
+	free(map[i - 1]);
+	map[i - 1] = NULL;
 	return (map);
 }
 
@@ -568,7 +562,7 @@ void free_strs(char **strs)
 	free(strs);
 }
 
-int check_wrong_line()
+int check_header_dublicates()
 {
 	if (header.res > 1)
 		return (0);
@@ -959,6 +953,20 @@ int check_empty_line(int i)
 	return (0);
 }
 
+int check_line(int i)
+{
+	int j;
+
+	j = 0;
+	while (all.map[i][j] != 0)
+	{
+		if (all.map[i][j] != ' ' && all.map[i][j] != '1' && all.map[i][j] != '0' && all.map[i][j] != 'N' && all.map[i][j] != 'W' && all.map[i][j] != 'S' && all.map[i][j] != 'E' && all.map[i][j] != '2')
+			return (0);
+		j++;
+	}
+	return (1);
+}
+
 char *check_cub()
 {
 	int i;
@@ -973,19 +981,19 @@ char *check_cub()
 			break;
 		i++;
 	}
-	if (all.map[i] == 0 && check_header()[0] != '1')
+	if (all.map[i] == 0 && check_header()[0] != '1') // нет карты, но что-то с количеством идентификаторов
 		return (check_header());
-	if (check_ident(&i)[0] == '1')
+	if (check_ident(&i)[0] == '1') // с идентификаторами все норм, но нет карты
 		return (NO_MAP);
-	if (check_empty_line(i) == 0)
+	if (check_empty_line(i) == 0) // строка из пробелов
 		return (WRONG_LINE);
-	if (check_ident(&i)[0] == '0' && check_wrong_line() == 1 && check_header()[0] != '1')
-		return (WRONG_LINE);
-	if (check_ident(&i)[0] != '0')
+	if (check_ident(&i)[0] != '0' && check_ident(&i)[0] != '1') // ошибка идентификатора
 		return (check_ident(&i));	
-	if (check_header()[0] != '1')
+	if (check_ident(&i)[0] == '0' && check_header_dublicates() == 1 && check_header()[0] != '1' && check_line(i) == 0) // рандом строка, в идентификаторах нет дубликатов и они не все есть
+		return (WRONG_LINE);
+	if (check_header()[0] != '1') //
 		return (check_header());
-	if (check_map(i)[0] != '1')
+	if (check_map(i)[0] != '1') // чекаю карту
 		return (check_map(i));
 	return ("1");
 }
@@ -1002,7 +1010,7 @@ int main(int argc, char **argv)
 	if (checker[0] != '1')
 	{
 		close(fd);
-		free_map();
+		//free_map();
 		printf("Error: %s", checker);
 		return (0);
 	}

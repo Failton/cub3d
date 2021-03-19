@@ -420,7 +420,7 @@ char	**parcer(int fd)
 		map_list = map_list->next;
 		i++;
 	}
-	map[i - 1] = NULL;
+	/* map[i - 1] = NULL; */
 	return (map);
 }
 
