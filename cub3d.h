@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:18:43 by pruthann          #+#    #+#             */
-/*   Updated: 2021/02/13 15:18:58 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/20 17:17:47 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,17 @@ typedef struct	s_plr
 	double		ray_end;
 }				  t_plr;
 
-
+typedef struct	s_header
+{
+	int res;
+	int no;;
+	int so;
+	int we;
+	int ea;
+	int s;
+	int f;
+	int c;
+}		t_header;
 
 typedef struct	s_all
 {
@@ -68,6 +78,11 @@ typedef struct	s_all
 	t_win		sprite;
 	t_plr		plr;
 	t_point		point;
+	t_header	header;
+	int ceil_color;
+	int floor_color;
+	int width;
+	int height;
 	char		**map;
 }				  t_all;
 
@@ -88,17 +103,5 @@ typedef struct	s_shot
 	unsigned int pltcolors;
 	unsigned int impcolors;
 }		t_shot;
-
-typedef struct	s_header
-{
-	int res;
-	int no;;
-	int so;
-	int we;
-	int ea;
-	int s;
-	int f;
-	int c;
-}		t_header;
 
 #endif

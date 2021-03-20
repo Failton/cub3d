@@ -1,5 +1,5 @@
 
-R 900 600
+R 900 0
 NO ./image_n.xpm
 SO ./image_s.xpm
 WE ./image_w.xpm
@@ -8,4 +8,6 @@ S ./sprite.xpm
 F 255,255,255
 C 0,0,255
 
-
+111
+1N1
+111

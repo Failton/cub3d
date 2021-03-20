@@ -3,15 +3,6 @@
 #include "libft.h"
 #include "errors.h"
 
-
-int	width = 900;
-int	height = 600;
-t_point point;
-t_all	all;
-t_header header;
-int	floor_color;
-int	ceil_color;
-
 int		get_r(int trgb)
 {
 	return (trgb & (0xFF << 16));
@@ -48,21 +39,20 @@ void	my_mlx_pixel_put(t_win all, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-int	close_win()
+int	close_win(t_all	*all)
 {
-	free(all.image_n.path);
-	free(all.image_e.path);
-	free(all.image_w.path);
-	free(all.image_s.path);
-	free(all.sprite.path);
-	mlx_destroy_image(all.win.mlx, all.image_n.img);
-	mlx_destroy_image(all.win.mlx, all.image_e.img);
-	mlx_destroy_image(all.win.mlx, all.image_w.img);
-	mlx_destroy_image(all.win.mlx, all.image_s.img);
-	mlx_destroy_image(all.win.mlx, all.sprite.img);
-	mlx_clear_window(all.win.mlx, all.win.win);
-	mlx_destroy_window(all.win.mlx, all.win.win);
-	//free_map();
+	free(all->image_n.path);
+	free(all->image_e.path);
+	free(all->image_w.path);
+	free(all->image_s.path);
+	free(all->sprite.path);
+	mlx_destroy_image(all->win.mlx, all->image_n.img);
+	mlx_destroy_image(all->win.mlx, all->image_e.img);
+	mlx_destroy_image(all->win.mlx, all->image_w.img);
+	mlx_destroy_image(all->win.mlx, all->image_s.img);
+	mlx_destroy_image(all->win.mlx, all->sprite.img);
+	mlx_clear_window(all->win.mlx, all->win.win);
+	mlx_destroy_window(all->win.mlx, all->win.win);
 	exit(1);
 	return (1);
 }
@@ -100,34 +90,34 @@ int fill_map_on_screen(t_all *all)
 	return (1);
 }
 
-void	horizont_point(t_all *all, t_point *point)	
+void	horizont_point(t_all *all)	
 {
 	double temp_x;
 	double temp_y;
 
-	temp_x = point->h_x;
-	temp_y = point->h_y;
+	temp_x = all->point.h_x;
+	temp_y = all->point.h_y;
 	if ((all->plr.ray_start >= - M_PI && all->plr.ray_start <= 0) || (all->plr.ray_start >= M_PI && all->plr.ray_start <= 3 * M_PI_2))
-		point->h_y = (int)(temp_y / SCALE) * SCALE - 0.00009;
+		all->point.h_y = (int)(temp_y / SCALE) * SCALE - 0.00009;
 	else
-		point->h_y = (int)(temp_y / SCALE) * SCALE + SCALE;
-	point->h_x = temp_x - (temp_y - point->h_y) / tan(all->plr.ray_start);
-	point->h_len =  hypot(all->plr.x - point->h_x, all->plr.y - point->h_y);
+		all->point.h_y = (int)(temp_y / SCALE) * SCALE + SCALE;
+	all->point.h_x = temp_x - (temp_y - all->point.h_y) / tan(all->plr.ray_start);
+	all->point.h_len =  hypot(all->plr.x - all->point.h_x, all->plr.y - all->point.h_y);
 }
 
-void	vertical_point(t_all *all, t_point *point)	
+void	vertical_point(t_all *all)	
 {
 	double temp_x;
 	double temp_y;
 
-	temp_x = point->v_x;
-	temp_y = point->v_y;
+	temp_x = all->point.v_x;
+	temp_y = all->point.v_y;
 	if ((all->plr.ray_start >= - M_PI_2 && all->plr.ray_start <= M_PI_2) || (all->plr.ray_start <= - 3 * M_PI_2 && all->plr.ray_start >= - 2 * M_PI))
-		point->v_x = (int)(temp_x / SCALE) * SCALE + SCALE;
+		all->point.v_x = (int)(temp_x / SCALE) * SCALE + SCALE;
 	else
-		point->v_x = (int)(temp_x / SCALE) * SCALE - 0.00009;
-	point->v_y = temp_y - (temp_x - point->v_x) * tan(all->plr.ray_start);
-	point->v_len =  hypot(all->plr.x - point->v_x, all->plr.y - point->v_y);
+		all->point.v_x = (int)(temp_x / SCALE) * SCALE - 0.00009;
+	all->point.v_y = temp_y - (temp_x - all->point.v_x) * tan(all->plr.ray_start);
+	all->point.v_len =  hypot(all->plr.x - all->point.v_x, all->plr.y - all->point.v_y);
 }
 
 void	put_image_e(t_all *all, int i, double x, double y)
@@ -137,13 +127,13 @@ void	put_image_e(t_all *all, int i, double x, double y)
 	double	black;
 
 	k = -1;
-	line = SCALE * height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
-	if (line >= height)
+	line = SCALE * all->height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
+	if (line >= all->height)
 		line = 0;
-	black = (height - line) / 2;
+	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -151,7 +141,7 @@ void	put_image_e(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 }
 
 void	put_image_w(t_all *all, int i, double x, double y)
@@ -161,13 +151,13 @@ void	put_image_w(t_all *all, int i, double x, double y)
 	double	black;
 
 	k = -1;
-	line = SCALE * height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
-	if (line >= height)
+	line = SCALE * all->height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
+	if (line >= all->height)
 		line = 0;
-	black = (height - line) / 2;
+	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -175,7 +165,7 @@ void	put_image_w(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 }
 
 void	put_image_n(t_all *all, int i, double x, double y)
@@ -185,13 +175,13 @@ void	put_image_n(t_all *all, int i, double x, double y)
 	double	black;
 
 	k = -1;
-	line = SCALE * height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
-	if (line >= height)
+	line = SCALE * all->height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
+	if (line >= all->height)
 		line = 0;
-	black = (height - line) / 2;
+	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -199,7 +189,7 @@ void	put_image_n(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 }
 
 void	put_image_s(t_all *all, int i, double x, double y)
@@ -209,13 +199,13 @@ void	put_image_s(t_all *all, int i, double x, double y)
 	double	black;
 
 	k = -1;
-	line = SCALE * height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
-	if (line >= height)
+	line = SCALE * all->height / (hypot(all->plr.x - x, all->plr.y - y) * fabs(cos(all->plr.ray_start - all->plr.dir)));
+	if (line >= all->height)
 		line = 0;
-	black = (height - line) / 2;
+	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -223,7 +213,7 @@ void	put_image_s(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 }
 
 void		find_line(t_all *all, double *x1, double *y1)
@@ -267,11 +257,11 @@ void	put_sprite(t_all *all, int i, double x, double y)
 	j = 0;
 	tmp_x = (int)(x / SCALE) * SCALE + SCALE / 2;
 	tmp_y = (int)(y / SCALE) * SCALE + SCALE / 2;
-	line = SCALE * height / (hypot(all->plr.x - tmp_x, all->plr.y - tmp_y) * ((tmp_x - all->plr.x) * (cos(all->plr.dir) * SCALE) + (tmp_y - all->plr.y) * (sin(all->plr.dir) * SCALE)) / (hypot(tmp_x - all->plr.x, tmp_y - all->plr.y) * hypot(cos(all->plr.dir) * SCALE, sin(all->plr.dir) * SCALE)));
+	line = SCALE * all->height / (hypot(all->plr.x - tmp_x, all->plr.y - tmp_y) * ((tmp_x - all->plr.x) * (cos(all->plr.dir) * SCALE) + (tmp_y - all->plr.y) * (sin(all->plr.dir) * SCALE)) / (hypot(tmp_x - all->plr.x, tmp_y - all->plr.y) * hypot(cos(all->plr.dir) * SCALE, sin(all->plr.dir) * SCALE)));
 	find_line(all, &tmp_x, &tmp_y);
-	if (line >= height)
+	if (line >= all->height)
 		line = 0;
-	black = (height - line) / 2;
+	black = (all->height - line) / 2;
 	if (all->plr.dir >= - M_PI_4 && all->plr.dir <= M_PI_4 && (int)(((tmp_y - (int)(tmp_y / SCALE) * SCALE) - SCALE * (1 - fabs(cos(all->plr.dir)))) / fabs(cos(all->plr.dir)) / SCALE * all->sprite.img_width) < 0)
 		return;
 	else if (((all->plr.dir <= - 3 * M_PI_4 && all->plr.dir >= - 5 * M_PI_4) || (all->plr.dir <= M_PI && all->plr.dir >= 3 * M_PI_4)) && (int)(((tmp_y - (int)(tmp_y / SCALE) * SCALE) - SCALE * (1 - fabs(cos(all->plr.dir)))) / fabs(cos(all->plr.dir)) / SCALE * all->sprite.img_width) - 1 < 0)
@@ -303,34 +293,46 @@ void	put_sprite(t_all *all, int i, double x, double y)
 	while (++k < black * 2 + line);
 }
 
-void	cast_ray_set_def(t_point *point, double *x, double *y, t_all *all)
+void	cast_ray_set_def(double *x, double *y, t_all *all)
 {
-	point->h_x = all->plr.x;
-	point->h_y = all->plr.y;
-	point->v_x = all->plr.x;
-	point->v_y = all->plr.y;
+	all->point.h_x = all->plr.x;
+	all->point.h_y = all->plr.y;
+	all->point.v_x = all->plr.x;
+	all->point.v_y = all->plr.y;
 	*x = all->plr.x;
 	*y = all->plr.y;
 }
 
-void	cast_ray_next(t_point *point, double *x, double *y, t_all *all)
+void	cast_ray_next(double *x, double *y, t_all *all)
 {
-	if (point->h_len < point->v_len)
+	if (all->point.h_len < all->point.v_len)
 	{
-		*x = point->h_x;
-		*y = point->h_y;
-		point->h_flag = 1;
-		point->v_flag = 0;
-		horizont_point(all, point);
+		*x = all->point.h_x;
+		*y = all->point.h_y;
+		all->point.h_flag = 1;
+		all->point.v_flag = 0;
+		horizont_point(all);
 	}
 	else
 	{
-		*x = point->v_x;
-		*y = point->v_y;
-		point->h_flag = 0;
-		point->v_flag = 1;
-		vertical_point(all, point);
+		*x = all->point.v_x;
+		*y = all->point.v_y;
+		all->point.h_flag = 0;
+		all->point.v_flag = 1;
+		vertical_point(all);
 	}
+}
+
+void	select_texture(t_all *all, int i, int x, int y)
+{
+		if (all->point.v_flag == 1 && ((all->plr.ray_start >= - M_PI_2 && all->plr.ray_start <= M_PI_2) || (all->plr.ray_start <= - 3 * M_PI_2 && all->plr.ray_start >= - 2 * M_PI)))
+			put_image_e(all, i, x, y);
+		else if (all->point.v_flag == 1)
+			put_image_w(all, i, x, y);
+		else if (all->point.h_flag == 1 && ((all->plr.ray_start >= - M_PI && all->plr.ray_start <= 0) || (all->plr.ray_start >= M_PI && all->plr.ray_start <= 3 * M_PI_2)))
+			put_image_n(all, i, x, y);
+		else
+			put_image_s(all, i, x, y);
 
 }
 
@@ -340,39 +342,31 @@ void	cast_ray(t_all *all)
 	double y;
 	int i;
 
-	i = 0;
+	i = -1;
 	all->plr.ray_end = all->plr.dir + M_PI / 6;
 	all->plr.ray_start = all->plr.dir - M_PI / 6;
-	cast_ray_set_def(&point, &x, &y, all);
-	while (all->plr.ray_start <= all->plr.ray_end && i < width)
+	cast_ray_set_def(&x, &y, all);
+	while (all->plr.ray_start <= all->plr.ray_end && ++i < all->width)
 	{
-		horizont_point(all, &point);
-		vertical_point(all, &point);
-		point.h_flag = 0;
-		point.v_flag = 0;
+		horizont_point(all);
+		vertical_point(all);
+		all->point.h_flag = 0;
+		all->point.v_flag = 0;
 		while (all->map[(int)(y / SCALE)][(int)(x / SCALE)] != '1')
 		{
 			if (all->map[(int)(y / SCALE)][(int)(x / SCALE)] == '2')
 				put_sprite(all, i, x, y);
-			cast_ray_next(&point, &x, &y, all);
+			cast_ray_next(&x, &y, all);
 		}
-		if (point.v_flag == 1 && ((all->plr.ray_start >= - M_PI_2 && all->plr.ray_start <= M_PI_2) || (all->plr.ray_start <= - 3 * M_PI_2 && all->plr.ray_start >= - 2 * M_PI)))
-			put_image_e(all, i, x, y);
-		else if (point.v_flag == 1)
-			put_image_w(all, i, x, y);
-		else if (point.h_flag == 1 && ((all->plr.ray_start >= - M_PI && all->plr.ray_start <= 0) || (all->plr.ray_start >= M_PI && all->plr.ray_start <= 3 * M_PI_2)))
-			put_image_n(all, i, x, y);
-		else
-			put_image_s(all, i, x, y);
-		i++;
-		all->plr.ray_start = - atan((width / 2 - i) / (sqrt(3) * (width / 2))) + all->plr.dir;
-		cast_ray_set_def(&point, &x, &y, all);
+		select_texture(all, i, x, y);
+		all->plr.ray_start = - atan((all->width / 2 - i + 1) /
+				(sqrt(3) * (all->width / 2))) + all->plr.dir;
+		cast_ray_set_def(&x, &y, all);
 	}
 }
 
-int	key_hook(int keycode, t_all *all)
+void move_plr(int keycode, t_all *all)
 {
-	/* printf("%d\n", keycode); */
 	if (keycode == 13 || keycode == 119)
 	{
 		all->plr.x += cos(all->plr.dir) * 0.4 * SCALE;
@@ -397,17 +391,20 @@ int	key_hook(int keycode, t_all *all)
 		all->plr.dir += 0.15;
 	if (keycode == 123 || keycode == 65361)
 		all->plr.dir -= 0.15;
+}
+
+int	key_hook(int keycode, t_all *all)
+{
+	/* printf("%d\n", keycode); */
+	move_plr(keycode, all);
 	if (all->plr.dir <= - 3 * M_PI_2)
 		all->plr.dir += 2 * M_PI;
 	if (all->plr.dir >= M_PI)
 		all->plr.dir -= 2 * M_PI;
-	if (keycode == 65307)
-	{
-	//	free_map();
-		close_win();
-	}
+	if (keycode == 65307 || keycode == 53)
+		close_win(all);
 	mlx_destroy_image(all->win.mlx, all->win.img);
-	all->win.img = mlx_new_image(all->win.mlx, width, height);
+	all->win.img = mlx_new_image(all->win.mlx, all->width, all->height);
 	all->win.addr = mlx_get_data_addr(all->win.img, &all->win.bpp, &all->win.line_len, &all->win.end);
 	cast_ray(all);
 	mlx_put_image_to_window(all->win.mlx, all->win.win, all->win.img, 0, 0);
@@ -441,29 +438,29 @@ char	**parcer(int fd)
 	return (map);
 }
 
-void screenshot_filler(t_shot *shot)
+void screenshot_filler(t_shot *shot, t_all all)
 {
-	shot->filesize = 14 + 40 + width * height * 4;
+	shot->filesize = 14 + 40 + all.width * all.height * 4;
 	shot->reserved = 0;
 	shot->offset = 14 + 40;
 	shot->headersize = 40;
-	shot->dimension_x = width;
-	shot->dimension_y = height;
+	shot->dimension_x = all.width;
+	shot->dimension_y = all.height;
 	shot->colorplanes = 1;
 	shot->bpp = 32;
 	shot->compression = 0;
-	shot->imgsize = width * width * 4;
+	shot->imgsize = all.width * all.width * 4;
 	shot->resolution_x = 2795;
 	shot->resolution_y = 2795;
 	shot->pltcolors = 0;
 	shot->impcolors = 0;
 }
 
-void screenshot_header(int fd)
+void screenshot_header(int fd, t_all all)
 {
 	t_shot shot;
 
-	screenshot_filler(&shot);
+	screenshot_filler(&shot, all);
 	write(fd, "BM", 2);
 	write(fd, (char *)(&shot.filesize), sizeof(shot.filesize));
 	write(fd, (char *)(&shot.reserved), sizeof(shot.reserved));
@@ -480,7 +477,6 @@ void screenshot_header(int fd)
 	write(fd, (char *)(&shot.resolution_y), sizeof(shot.resolution_y));
 	write(fd, (char *)(&shot.pltcolors), sizeof(shot.pltcolors));
 	write(fd, (char *)(&shot.impcolors), sizeof(shot.impcolors));
-
 }
 
 void screenshot_trgb(int fd, int color)
@@ -500,7 +496,7 @@ void screenshot_trgb(int fd, int color)
 	write(fd, (char *)(&t), sizeof(t));
 }
 
-void screenshot()
+void screenshot(t_all all)
 {
 	int fd;
 	int x;
@@ -508,13 +504,13 @@ void screenshot()
 	int color;
 
 	x = 0;
-	y = height;
+	y = all.height;
 	fd = open("img.bmp", O_CREAT | O_RDWR | O_TRUNC);
-	screenshot_header(fd);
+	screenshot_header(fd, all);
 	while (y - 1 >= 0)
 	{
 		x = 0;
-		while (x < width)
+		while (x < all.width)
 		{
 			color = my_mlx_get_color(all.win, x, y - 1);
 			screenshot_trgb(fd, color);
@@ -525,16 +521,16 @@ void screenshot()
 	close(fd);
 }
 
-void fill_header()
+void fill_header(t_all *all)
 {
-	header.res = 0;
-	header.no = 0;
-	header.so = 0;
-	header.we = 0;
-	header.ea = 0;
-	header.s = 0;
-	header.f = 0;
-	header.c = 0;
+	all->header.res = 0;
+	all->header.no = 0;
+	all->header.so = 0;
+	all->header.we = 0;
+	all->header.ea = 0;
+	all->header.s = 0;
+	all->header.f = 0;
+	all->header.c = 0;
 }
 
 int strs_len(char **strs)
@@ -562,49 +558,49 @@ void free_strs(char **strs)
 	free(strs);
 }
 
-int check_header_dublicates()
+int check_header_dublicates(t_all all)
 {
-	if (header.res > 1)
+	if (all.header.res > 1)
 		return (0);
-	if (header.no > 1)
+	if (all.header.no > 1)
 		return (0);
-	if (header.so > 1)
+	if (all.header.so > 1)
 		return (0);
-	if (header.we > 1)
+	if (all.header.we > 1)
 		return (0);
-	if (header.ea > 1)
+	if (all.header.ea > 1)
 		return (0);
-	if (header.s > 1)
+	if (all.header.s > 1)
 		return (0);
-	if (header.f > 1)
+	if (all.header.f > 1)
 		return (0);
-	if (header.c > 1)
+	if (all.header.c > 1)
 		return (0);
 	return (1);
 }
 
-char *check_header()
+char *check_header(t_all all)
 {
-	if (header.res != 1)
+	if (all.header.res != 1)
 		return (CONF);
-	if (header.no != 1)
+	if (all.header.no != 1)
 		return (CONF);
-	if (header.so != 1)
+	if (all.header.so != 1)
 		return (CONF);
-	if (header.we != 1)
+	if (all.header.we != 1)
 		return (CONF);
-	if (header.ea != 1)
+	if (all.header.ea != 1)
 		return (CONF);
-	if (header.s != 1)
+	if (all.header.s != 1)
 		return (CONF);
-	if (header.f != 1)
+	if (all.header.f != 1)
 		return (CONF);
-	if (header.c != 1)
+	if (all.header.c != 1)
 		return (CONF);
 	return ("1");
 }
 
-char *check_fill_res(int i)
+char *check_fill_res(int i, t_all *all)
 {
 	int j;
 	char **strs;
@@ -612,138 +608,138 @@ char *check_fill_res(int i)
 	int resy;
 
 	j = 0;
-	while (all.map[i][++j] != 0)
-		if ((all.map[i][j] < '0' || all.map[i][j] > '9') && all.map[i][j] != ' ')
+	while (all->map[i][++j] != 0)
+		if ((all->map[i][j] < '0' || all->map[i][j] > '9') && all->map[i][j] != ' ')
 			return (RES);
 	j = 0;
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 3)
 		return (RES);
-	width = ft_atoi(strs[1]);
-	height = ft_atoi(strs[2]);
-	mlx_get_screen_size(all.win.mlx, &resx, &resy);
-	if (width > resx)
-		width = resx;
-	if (height > resy)
-		height = resy;
-	if (width < 0 || height < 0)
+	all->width = ft_atoi(strs[1]);
+	all->height = ft_atoi(strs[2]);
+	mlx_get_screen_size(all->win.mlx, &resx, &resy);
+	if (all->width > resx)
+		all->width = resx;
+	if (all->height > resy)
+		all->height = resy;
+	if (all->width <= 0 || all->height <= 0)
 		return (RES);
 	free_strs(strs);
-	header.res++;
+	all->header.res++;
 	return ("1");
 }
 
-char *check_fill_no(int i)
+char *check_fill_no(int i, t_all *all)
 {
 	char **strs;
 	int fd;
 
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (NO);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (NO);
-	all.image_n.path = ft_strdup(strs[1]);
-	fd = open(all.image_n.path, O_RDONLY);
+	all->image_n.path = ft_strdup(strs[1]);
+	fd = open(all->image_n.path, O_RDONLY);
 	if (fd == -1)
 		return (PATH_NO);
 	close (fd);
-	if (all.image_n.path == NULL)
+	if (all->image_n.path == NULL)
 		return (NO);
 	free_strs(strs);
-	header.no++;
+	all->header.no++;
 	close(fd);
 	return ("1");
 }
 
-char *check_fill_so(int i)
+char *check_fill_so(int i, t_all *all)
 {
 	char **strs;
 	int fd;
 
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (SO);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (SO);
-	all.image_s.path = ft_strdup(strs[1]);
-	fd = open(all.image_s.path, O_RDONLY);
+	all->image_s.path = ft_strdup(strs[1]);
+	fd = open(all->image_s.path, O_RDONLY);
 	if (fd == -1)
 		return (PATH_SO);
 	close (fd);
-	if (all.image_s.path == NULL)
+	if (all->image_s.path == NULL)
 		return (SO);
 	free_strs(strs);
-	header.so++;
+	all->header.so++;
 	close(fd);
 	return ("1");
 }
 
-char *check_fill_we(int i)
+char *check_fill_we(int i, t_all *all)
 {
 	char **strs;
 	int fd;
 
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (WE);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (WE);
-	all.image_w.path = ft_strdup(strs[1]);
-	fd = open(all.image_w.path, O_RDONLY);
+	all->image_w.path = ft_strdup(strs[1]);
+	fd = open(all->image_w.path, O_RDONLY);
 	if (fd == -1)
 		return (PATH_WE);
 	close (fd);
-	if (all.image_w.path == NULL)
+	if (all->image_w.path == NULL)
 		return (WE);
 	free_strs(strs);
-	header.we++;
+	all->header.we++;
 	close(fd);
 	return ("1");
 }
 
-char *check_fill_ea(int i)
+char *check_fill_ea(int i, t_all *all)
 {
 	char **strs;
 	int fd;
 
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (EA);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (EA);
-	all.image_e.path = ft_strdup(strs[1]);
-	fd = open(all.image_e.path, O_RDONLY);
+	all->image_e.path = ft_strdup(strs[1]);
+	fd = open(all->image_e.path, O_RDONLY);
 	if (fd == -1)
 		return (PATH_EA);
 	close (fd);
-	if (all.image_e.path == NULL)
+	if (all->image_e.path == NULL)
 		return (EA);
 	free_strs(strs);
-	header.ea++;
+	all->header.ea++;
 	close(fd);
 	return ("1");
 }
 
-char *check_fill_s(int i)
+char *check_fill_s(int i, t_all *all)
 {
 	char **strs;
 	int fd;
 
-	strs = ft_split(all.map[i], ' ');
+	strs = ft_split(all->map[i], ' ');
 	if (strs_len(strs) != 2)
 		return (S);
 	if ((ft_strrchr(strs[1], '.') == NULL) || ft_strncmp(ft_strrchr(strs[1], '.'), ".xpm", 4) != 0)
 		return (S);
-	all.sprite.path = ft_strdup(strs[1]);
-	fd = open(all.sprite.path, O_RDONLY);
+	all->sprite.path = ft_strdup(strs[1]);
+	fd = open(all->sprite.path, O_RDONLY);
 	if (fd == -1)
 		return (PATH_S);
 	close (fd);
-	if (all.sprite.path == NULL)
+	if (all->sprite.path == NULL)
 		return (S);
 	free_strs(strs);
-	header.s++;
+	all->header.s++;
 	close(fd);
 	return ("1");
 }
@@ -761,7 +757,7 @@ int check_one_num(char *str)
 	return (num);
 }
 
-char *check_fill_f(int i)
+char *check_fill_f(int i, t_all *all)
 {
 	char **strs;
 	char *str;
@@ -770,10 +766,10 @@ char *check_fill_f(int i)
 	int b;
 
 	r = 0;
-	while (all.map[i][++r] != 0)
-		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
+	while (all->map[i][++r] != 0)
+		if ((all->map[i][r] < '0' || all->map[i][r] > '9') && all->map[i][r] != ' ' && all->map[i][r] != ',')
 			return (FLOOR);
-	str = all.map[i] + 1;
+	str = all->map[i] + 1;
 	strs = ft_split(str, ',');
 	if (strs_len(strs) != 3)
 		return (FLOOR);
@@ -782,13 +778,13 @@ char *check_fill_f(int i)
 	b = check_one_num(strs[2]);
 	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
 		return (FLOOR);
-	floor_color = create_trgb(0, r, g, b);
+	all->floor_color = create_trgb(0, r, g, b);
 	free_strs(strs);
-	header.f++;
+	all->header.f++;
 	return ("1");
 }
 
-char *check_fill_c(int i)
+char *check_fill_c(int i, t_all *all)
 {
 	char **strs;
 	char *str;
@@ -797,10 +793,10 @@ char *check_fill_c(int i)
 	int b;
 
 	r = 0;
-	while (all.map[i][++r] != 0)
-		if ((all.map[i][r] < '0' || all.map[i][r] > '9') && all.map[i][r] != ' ' && all.map[i][r] != ',')
+	while (all->map[i][++r] != 0)
+		if ((all->map[i][r] < '0' || all->map[i][r] > '9') && all->map[i][r] != ' ' && all->map[i][r] != ',')
 			return (CEIL);
-	str = all.map[i] + 1;
+	str = all->map[i] + 1;
 	strs = ft_split(str, ',');
 	if (strs_len(strs) != 3)
 		return (CEIL);
@@ -809,13 +805,13 @@ char *check_fill_c(int i)
 	b = check_one_num(strs[2]);
 	if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
 		return (CEIL);
-	ceil_color = create_trgb(0, r, g, b);
+	all->ceil_color = create_trgb(0, r, g, b);
 	free_strs(strs);
-	header.c++;
+	all->header.c++;
 	return ("1");
 }
 
-char *check_circuit(int i, int end)
+char *check_circuit(int i, int end, t_all all)
 {
 	int j;
 	int start;
@@ -853,7 +849,7 @@ char *check_circuit(int i, int end)
 	return ("1");
 }
 
-char *check_player(int i)
+char *check_player(int i, t_all all)
 {
 	int j;
 	int count;
@@ -876,7 +872,7 @@ char *check_player(int i)
 	return ("1");
 }
 
-char *check_symbols(int i)
+char *check_symbols(int i, t_all all)
 {
 	int j;
 	int temp_i;
@@ -896,42 +892,42 @@ char *check_symbols(int i)
 		}
 		i++;
 	}
-	if (check_circuit(temp_i, i - 1)[0] != '1')
+	if (check_circuit(temp_i, i - 1, all)[0] != '1')
 		return (BAD_CIRCUIT);
 	return ("1");
 }
 
-char *check_map(int i)
+char *check_map(int i, t_all all)
 {
-	if (check_player(i)[0] != '1')
-		return (check_player(i));
-	if (check_symbols(i)[0] != '1')
-		return (check_symbols(i));
+	if (check_player(i, all)[0] != '1')
+		return (check_player(i, all));
+	if (check_symbols(i, all)[0] != '1')
+		return (check_symbols(i, all));
 	return ("1");
 }
 
-char *check_ident(int *i)
+char *check_ident(int *i, t_all *all)
 {
 	char *answer;
 
-	if (ft_strlen(all.map[*i]) == 0)
+	if (ft_strlen(all->map[*i]) == 0)
 		return ("1");
-	else if (ft_strncmp(all.map[*i], "R ", 2) == 0)
-		answer = check_fill_res(*i);
-	else if (ft_strncmp(all.map[*i], "NO ", 3) == 0)
-		answer = check_fill_no(*i);
-	else if (ft_strncmp(all.map[*i], "SO ", 3) == 0)
-		answer = check_fill_so(*i);
-	else if (ft_strncmp(all.map[*i], "WE ", 3) == 0)
-		answer = check_fill_we(*i);
-	else if (ft_strncmp(all.map[*i], "EA ", 3) == 0)
-		answer = check_fill_ea(*i);
-	else if (ft_strncmp(all.map[*i], "S ", 2) == 0)
-		answer = check_fill_s(*i);
-	else if (ft_strncmp(all.map[*i], "F ", 2) == 0)
-		answer = check_fill_f(*i);
-	else if (ft_strncmp(all.map[*i], "C ", 2) == 0)
-		answer = check_fill_c(*i);
+	else if (ft_strncmp(all->map[*i], "R ", 2) == 0)
+		answer = check_fill_res(*i, all);
+	else if (ft_strncmp(all->map[*i], "NO ", 3) == 0)
+		answer = check_fill_no(*i, all);
+	else if (ft_strncmp(all->map[*i], "SO ", 3) == 0)
+		answer = check_fill_so(*i, all);
+	else if (ft_strncmp(all->map[*i], "WE ", 3) == 0)
+		answer = check_fill_we(*i, all);
+	else if (ft_strncmp(all->map[*i], "EA ", 3) == 0)
+		answer = check_fill_ea(*i, all);
+	else if (ft_strncmp(all->map[*i], "S ", 2) == 0)
+		answer = check_fill_s(*i, all);
+	else if (ft_strncmp(all->map[*i], "F ", 2) == 0)
+		answer = check_fill_f(*i, all);
+	else if (ft_strncmp(all->map[*i], "C ", 2) == 0)
+		answer = check_fill_c(*i, all);
 	else
 		return ("0");
 	if (answer[0] != '1')
@@ -939,7 +935,7 @@ char *check_ident(int *i)
 	return ("1");
 }
 
-int check_empty_line(int i)
+int check_empty_line(int i, t_all all)
 {
 	int j;
 
@@ -953,7 +949,7 @@ int check_empty_line(int i)
 	return (0);
 }
 
-int check_line(int i)
+int check_line(int i, t_all all)
 {
 	int j;
 
@@ -967,57 +963,68 @@ int check_line(int i)
 	return (1);
 }
 
-char *check_cub()
+char *check_cub(t_all *all)
 {
 	int i;
 
-	fill_header();
+	fill_header(all);
 	i = 0;
-	if (all.map[i] == 0)
+	if (all->map[i] == 0)
 		return (EMPTY_FILE);
-	while (check_ident(&i)[0] == '1')
+	while (check_ident(&i, all)[0] == '1')
 	{
-		if (all.map[i] == 0)
+		if (all->map[i] == 0)
 			break;
 		i++;
 	}
-	if (all.map[i] == 0 && check_header()[0] != '1') // нет карты, но что-то с количеством идентификаторов
-		return (check_header());
-	if (check_ident(&i)[0] == '1') // с идентификаторами все норм, но нет карты
+	if (all->map[i] == 0 && check_header(*all)[0] != '1') // нет карты, но что-то с количеством идентификаторов
+		return (check_header(*all));
+	if (check_ident(&i, all)[0] == '1') // с идентификаторами все норм, но нет карты
 		return (NO_MAP);
-	if (check_empty_line(i) == 0) // строка из пробелов
+	if (check_empty_line(i, *all) == 0) // строка из пробелов
 		return (WRONG_LINE);
-	if (check_ident(&i)[0] != '0' && check_ident(&i)[0] != '1') // ошибка идентификатора
-		return (check_ident(&i));	
-	if (check_ident(&i)[0] == '0' && check_header_dublicates() == 1 && check_header()[0] != '1' && check_line(i) == 0) // рандом строка, в идентификаторах нет дубликатов и они не все есть
+	if (check_ident(&i, all)[0] != '0' && check_ident(&i, all)[0] != '1') // ошибка идентификатора
+		return (check_ident(&i, all));	
+	if (check_ident(&i, all)[0] == '0' && check_header_dublicates(*all) == 1 && check_header(*all)[0] != '1' && check_line(i, *all) == 0) // рандом строка, в идентификаторах нет дубликатов и они не все есть
 		return (WRONG_LINE);
-	if (check_header()[0] != '1') //
-		return (check_header());
-	if (check_map(i)[0] != '1') // чекаю карту
-		return (check_map(i));
+	if (check_header(*all)[0] != '1') //
+		return (check_header(*all));
+	if (check_map(i, *all)[0] != '1') // чекаю карту
+		return (check_map(i, *all));
 	return ("1");
 }
 
 int main(int argc, char **argv)
 {
+	t_all	all;
 	int fd;
 	char *checker;
 
+	if (argc == 1)
+	{
+		printf("Error\nMap not specified");
+		return (0);
+	}
+	if (argc > 3)
+	{
+		printf("Error\nMore than 2 arguments");
+		return (0);
+	}
 	fd = open(argv[1], O_RDONLY);
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
-	checker = check_cub();
+	checker = check_cub(&all);
 	if (checker[0] != '1')
 	{
 		close(fd);
-		//free_map();
-		printf("Error: %s", checker);
+		printf("Error\n%s", checker);
 		return (0);
 	}
 	else
 		printf("Всё норм, не забудь убрать!\n");
-	all.win.win = mlx_new_window(all.win.mlx, width, height, "cub3d");
-	all.win.img = mlx_new_image(all.win.mlx, width, height);
+
+	all.win.win = mlx_new_window(all.win.mlx, all.width, all.height, "cub3d");
+	all.win.img = mlx_new_image(all.win.mlx, all.width, all.height);
 	all.win.addr = mlx_get_data_addr(all.win.img, &all.win.bpp, &all.win.line_len, &all.win.end);
 
 	all.image_e.img = mlx_xpm_file_to_image(all.win.mlx, all.image_e.path, &all.image_e.img_width, &all.image_e.img_height);
@@ -1040,11 +1047,11 @@ int main(int argc, char **argv)
 	if ((argc == 3) && ft_strncmp(argv[2], "--save", 7) == 0)
 	{
 		close(fd);
-		screenshot();
-		close_win();
+		screenshot(all);
+		close_win(&all);
 		return (1);
 	}
-	mlx_hook(all.win.win, 33, 0L, close_win, &all);
+	mlx_hook(all.win.win, 17, 0L, close_win, &all);
 	mlx_hook(all.win.win, 2, 1L<<0, key_hook, &all);
 	mlx_loop(all.win.mlx);
 	return (1);
