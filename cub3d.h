@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/25 16:18:43 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/20 17:17:47 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/20 20:21:23 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 # include <stdio.h>
 # include <math.h>
 # include <fcntl.h>
+# include "mlx.h"
+# include "errors.h"
+# include "libft.h"
 # include "get_next_line.h"
 
 # define SCALE 62
@@ -103,5 +106,56 @@ typedef struct	s_shot
 	unsigned int pltcolors;
 	unsigned int impcolors;
 }		t_shot;
+
+int             get_r(int trgb);
+int             get_g(int trgb);
+int             get_b(int trgb);
+int             create_trgb(int t, int r, int g, int b);
+unsigned int    my_mlx_get_color(t_win data, int x, int y);
+void    my_mlx_pixel_put(t_win all, int x, int y, int color);
+int     close_win(t_all *all);
+void choose_dir(t_all *all, int i, int j);
+int fill_map_on_screen(t_all *all);
+void    horizont_point(t_all *all);
+void    vertical_point(t_all *all);
+void    put_image_e(t_all *all, int i, double x, double y);
+void    put_image_w(t_all *all, int i, double x, double y);
+void    put_image_n(t_all *all, int i, double x, double y);
+void    put_image_s(t_all *all, int i, double x, double y);
+void            find_line(t_all *all, double *x1, double *y1);
+void    put_sprite(t_all *all, int i, double x, double y);
+void    cast_ray_set_def(double *x, double *y, t_all *all);
+void    cast_ray_next(double *x, double *y, t_all *all);
+void    select_texture(t_all *all, int i, int x, int y);
+void    cast_ray(t_all *all);
+void move_plr(int keycode, t_all *all);
+int     key_hook(int keycode, t_all *all);
+char    **parcer(int fd);
+void screenshot_filler(t_shot *shot, t_all all);
+void screenshot_header(int fd, t_all all);
+void screenshot_trgb(int fd, int color);
+int screenshot(t_all all);
+void fill_header(t_all *all);
+int strs_len(char **strs);
+void free_strs(char **strs);
+int check_header_dublicates(t_all all);
+char *check_header(t_all all);
+char *check_fill_res(int i, t_all *all);
+char *check_fill_no(int i, t_all *all);
+char *check_fill_so(int i, t_all *all);
+char *check_fill_we(int i, t_all *all);
+char *check_fill_ea(int i, t_all *all);
+char *check_fill_s(int i, t_all *all);
+int check_one_num(char *str);
+char *check_fill_f(int i, t_all *all);
+char *check_fill_c(int i, t_all *all);
+char *check_circuit(int i, int end, t_all all);
+char *check_player(int i, t_all all);
+char *check_symbols(int i, t_all all);
+char *check_map(int i, t_all all);
+char *check_ident(int *i, t_all *all);
+int check_empty_line(int i, t_all all);
+int check_line(int i, t_all all);
+char *check_cub(t_all *all);
 
 #endif
