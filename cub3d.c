@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 19:22:39 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/21 17:36:01 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/21 18:42:06 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -601,6 +601,11 @@ char	*check_cub(t_all *all)
 
 int		check_argc(int argc, char **argv, int *fd)
 {
+	if (argc == 2 && ft_strncmp(ft_strrchr(argv[1], '.'), ".cub", 5) != 0)
+	{
+		printf("Error\nInvalid map format");
+		return (0);
+	}
 	if (argc == 1)
 	{
 		printf("Error\nMap not specified");
