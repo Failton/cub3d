@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/20 19:22:39 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/20 20:35:52 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/21 17:36:01 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,6 +389,40 @@ char	*check_fill_c(int i, t_all *all)
 	return ("1");
 }
 
+char	*check_circuit_start(t_all all, int i, int j, int start)
+{
+	if ((i == start) || (j == 0) || (j > (int)ft_strlen(all.map
+					[i - 1])) || all.map[i - 1][j - 1] == ' ')
+		return (BAD_CIRCUIT);
+	if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 1)
+			|| all.map[i - 1][j] == ' ')
+		return (BAD_CIRCUIT);
+	if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 2)
+			|| all.map[i - 1][j + 1] == ' ')
+		return (BAD_CIRCUIT);
+	if ((j > (int)ft_strlen(all.map[i]) - 2) || all.map[i][j + 1]
+			== ' ')
+		return (BAD_CIRCUIT);
+	return ("1");
+}
+
+char	*check_circuit_end(t_all all, int i, int j, int end)
+{
+	if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 2)
+			|| all.map[i + 1][j + 1] == ' ')
+		return (BAD_CIRCUIT);
+	if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 1)
+			|| all.map[i + 1][j] == ' ')
+		return (BAD_CIRCUIT);
+	if ((i == end) || (j == 0) || (j > (int)ft_strlen(all.map
+					[i + 1])) || all.map[i + 1][j - 1] == ' ')
+		return (BAD_CIRCUIT);
+	if ((j == 0) || (j > (int)ft_strlen(all.map[i]))
+			|| all.map[i][j - 1] == ' ')
+		return (BAD_CIRCUIT);
+	return ("1");
+}
+
 char	*check_circuit(int i, int end, t_all all)
 {
 	int j;
@@ -405,29 +439,8 @@ char	*check_circuit(int i, int end, t_all all)
 					|| all.map[i][j] == 'N' || all.map[i][j] == 'W'
 					|| all.map[i][j] == 'S' || all.map[i][j] == 'E')
 			{
-				if ((i == start) || (j == 0) || (j > (int)ft_strlen(all.map
-								[i - 1])) || all.map[i - 1][j - 1] == ' ')
-					return (BAD_CIRCUIT);
-				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 1)
-						|| all.map[i - 1][j] == ' ')
-					return (BAD_CIRCUIT);
-				if ((i == start) || (j > (int)ft_strlen(all.map[i - 1]) - 2)
-						|| all.map[i - 1][j + 1] == ' ')
-					return (BAD_CIRCUIT);
-				if ((j > (int)ft_strlen(all.map[i]) - 2) || all.map[i][j + 1]
-						== ' ')
-					return (BAD_CIRCUIT);
-				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 2)
-						|| all.map[i + 1][j + 1] == ' ')
-					return (BAD_CIRCUIT);
-				if ((i == end) || (j > (int)ft_strlen(all.map[i + 1]) - 1)
-						|| all.map[i + 1][j] == ' ')
-					return (BAD_CIRCUIT);
-				if ((i == end) || (j == 0) || (j > (int)ft_strlen(all.map
-								[i + 1])) || all.map[i + 1][j - 1] == ' ')
-					return (BAD_CIRCUIT);
-				if ((j == 0) || (j > (int)ft_strlen(all.map[i]))
-						|| all.map[i][j - 1] == ' ')
+				if (check_circuit_start(all, i, j, start)[0] != '1' ||
+						check_circuit_end(all, i, j, end)[0] != '1')
 					return (BAD_CIRCUIT);
 			}
 			j++;
@@ -670,6 +683,7 @@ int		main(int argc, char **argv)
 	if (check_cub(&all)[0] != '1')
 	{
 		close(fd);
+		fill_header(&all);
 		printf("Error\n%s", check_cub(&all));
 		return (0);
 	}
