@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/22 11:05:06 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/22 11:05:07 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/22 17:23:41 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void			put_image_e(t_all *all, int i, double x, double y)
 	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -36,7 +36,7 @@ void			put_image_e(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 }
 
 void			put_image_w(t_all *all, int i, double x, double y)
@@ -53,7 +53,7 @@ void			put_image_w(t_all *all, int i, double x, double y)
 	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -64,7 +64,7 @@ void			put_image_w(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 }
 
 void			put_image_n(t_all *all, int i, double x, double y)
@@ -81,7 +81,7 @@ void			put_image_n(t_all *all, int i, double x, double y)
 	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -91,7 +91,7 @@ void			put_image_n(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 }
 
 void			put_image_s(t_all *all, int i, double x, double y)
@@ -108,7 +108,7 @@ void			put_image_s(t_all *all, int i, double x, double y)
 	black = (all->height - line) / 2;
 	while (++k < black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->floor_color);
+			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
 	k--;
 	while (++k < line + black)
 		if (my_mlx_get_color(all->win, i, k) == 0)
@@ -119,5 +119,5 @@ void			put_image_s(t_all *all, int i, double x, double y)
 	k--;
 	while (++k < black * 2 + line)
 		if (my_mlx_get_color(all->win, i, k) == 0)
-			my_mlx_pixel_put(all->win, i, k, all->ceil_color);
+			my_mlx_pixel_put(all->win, i, k, all->floor_color);
 }

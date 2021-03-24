@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/22 11:05:31 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/22 11:05:33 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/24 18:02:06 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +31,16 @@ int				close_win(t_all *all)
 	free(all->image_w.path);
 	free(all->image_s.path);
 	free(all->sprite.path);
-	mlx_destroy_image(all->win.mlx, all->image_n.img);
-	mlx_destroy_image(all->win.mlx, all->image_e.img);
-	mlx_destroy_image(all->win.mlx, all->image_w.img);
-	mlx_destroy_image(all->win.mlx, all->image_s.img);
-	mlx_destroy_image(all->win.mlx, all->sprite.img);
+	if (all->image_n.img != 0)
+		mlx_destroy_image(all->win.mlx, all->image_n.img);
+	if (all->image_e.img != 0)
+		mlx_destroy_image(all->win.mlx, all->image_e.img);
+	if (all->image_w.img != 0)
+		mlx_destroy_image(all->win.mlx, all->image_w.img);
+	if (all->image_s.img != 0)
+		mlx_destroy_image(all->win.mlx, all->image_s.img);
+	if (all->sprite.img != 0)
+		mlx_destroy_image(all->win.mlx, all->sprite.img);
 	mlx_clear_window(all->win.mlx, all->win.win);
 	mlx_destroy_window(all->win.mlx, all->win.win);
 	exit(1);

@@ -6,11 +6,27 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/22 11:04:18 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/22 13:57:19 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/24 19:02:49 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+int		quantity_comma(char *str)
+{
+	int i;
+	int total;
+
+	i = 0;
+	total = 0;
+	while (str[i] != 0)
+	{
+		if (str[i] == ',')
+			total++;
+		i++;
+	}
+	return (total);
+}
 
 int		check_one_num(char *str)
 {
@@ -25,7 +41,7 @@ int		check_one_num(char *str)
 	return (num);
 }
 
-char	*check_fill_res(int i, t_all *all)
+char	*check_fill_res(int i, t_all *all, int argc)
 {
 	int		j;
 	char	**strs;
@@ -43,9 +59,9 @@ char	*check_fill_res(int i, t_all *all)
 	all->width = ft_atoi(strs[1]);
 	all->height = ft_atoi(strs[2]);
 	mlx_get_screen_size(all->win.mlx, &resx, &resy);
-	if (all->width > resx)
+	if (all->width > resx && argc == 2)
 		all->width = resx;
-	if (all->height > resy)
+	if (all->height > resy && argc == 2)
 		all->height = resy;
 	if (all->width <= 0 || all->height <= 0)
 		return (RES);
@@ -69,7 +85,7 @@ char	*check_fill_f(int i, t_all *all)
 			return (FLOOR);
 	str = all->map[i] + 1;
 	strs = ft_split(str, ',');
-	if (strs_len(strs) != 3)
+	if (strs_len(strs) != 3 || quantity_comma(str) != 2)
 		return (FLOOR);
 	r = check_one_num(strs[0]);
 	g = check_one_num(strs[1]);
@@ -97,7 +113,7 @@ char	*check_fill_c(int i, t_all *all)
 			return (CEIL);
 	str = all->map[i] + 1;
 	strs = ft_split(str, ',');
-	if (strs_len(strs) != 3)
+	if (strs_len(strs) != 3 || quantity_comma(str) != 2)
 		return (CEIL);
 	r = check_one_num(strs[0]);
 	g = check_one_num(strs[1]);

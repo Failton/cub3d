@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/21 18:02:15 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/22 13:30:42 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/24 18:57:39 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ int					strs_len(char **strs);
 void				free_strs(char **strs);
 int					check_header_dublicates(t_all all);
 char				*check_header(t_all all);
-char				*check_fill_res(int i, t_all *all);
+char				*check_fill_res(int i, t_all *all, int argc);
 char				*check_fill_no(int i, t_all *all);
 char				*check_fill_so(int i, t_all *all);
 char				*check_fill_we(int i, t_all *all);
@@ -165,12 +165,15 @@ char				*check_circuit(int i, int end, t_all all);
 char				*check_player(int i, t_all all);
 char				*check_symbols(int i, t_all all);
 char				*check_map(int i, t_all all);
-char				*check_ident(int *i, t_all *all);
+char				*check_ident(int *i, t_all *all, int argc);
 int					check_empty_line(int i, t_all all);
 int					check_line(int i, t_all all);
-char				*check_cub(t_all *all);
+char				*check_cub(t_all *all, int a);
 int					check_argc(int argc, char **argv, int *fd);
-void				do_images(t_all *all);
+int					exit_after_check_cub(t_all *all, int argc, int fd);
+int					xpm_to_images(t_all *all);
+int					quantity_comma(char *str);
+int					do_images(t_all *all);
 int					do_check_screenshot(int argc, char **argv, t_all *all,
 					int fd);
 #endif

@@ -6,7 +6,7 @@
 /*   By: pruthann <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/22 11:03:31 by pruthann          #+#    #+#             */
-/*   Updated: 2021/03/22 13:47:33 by pruthann         ###   ########.fr       */
+/*   Updated: 2021/03/24 18:46:54 by pruthann         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,33 +39,60 @@ int		check_argc(int argc, char **argv, int *fd)
 	return (1);
 }
 
-void	do_images(t_all *all)
+int		xpm_to_images(t_all *all)
+{
+	all->image_e.img = mlx_xpm_file_to_image(all->win.mlx, all->image_e.path,
+			&all->image_e.img_width, &all->image_e.img_height);
+	all->image_s.img = mlx_xpm_file_to_image(all->win.mlx, all->image_s.path,
+			&all->image_s.img_width, &all->image_s.img_height);
+	all->image_n.img = mlx_xpm_file_to_image(all->win.mlx, all->image_n.path,
+			&all->image_n.img_width, &all->image_n.img_height);
+	all->image_w.img = mlx_xpm_file_to_image(all->win.mlx, all->image_w.path,
+			&all->image_w.img_width, &all->image_w.img_height);
+	all->sprite.img = mlx_xpm_file_to_image(all->win.mlx, all->sprite.path,
+			&all->sprite.img_width, &all->sprite.img_height);
+	if (all->image_e.img == 0 || all->image_s.img == 0 || all->image_n.img == 0
+	|| all->image_w.img == 0 || all->sprite.img == 0)
+	{
+		printf("Error\nInvalid texture file");
+		close_win(all);
+		return (0);
+	}
+	return (1);
+}
+
+int		do_images(t_all *all)
 {
 	all->win.win = mlx_new_window(all->win.mlx, all->width,
 			all->height, "cub3d");
 	all->win.img = mlx_new_image(all->win.mlx, all->width, all->height);
 	all->win.addr = mlx_get_data_addr(all->win.img, &all->win.bpp,
 			&all->win.line_len, &all->win.end);
-	all->image_e.img = mlx_xpm_file_to_image(all->win.mlx, all->image_e.path,
-			&all->image_e.img_width, &all->image_e.img_height);
+	if (xpm_to_images(all) == 0)
+		return (0);
 	all->image_e.addr = mlx_get_data_addr(all->image_e.img, &all->image_e.bpp,
 			&all->image_e.line_len, &all->image_e.end);
-	all->image_s.img = mlx_xpm_file_to_image(all->win.mlx, all->image_s.path,
-			&all->image_s.img_width, &all->image_s.img_height);
 	all->image_s.addr = mlx_get_data_addr(all->image_s.img, &all->image_s.bpp,
 			&all->image_s.line_len, &all->image_s.end);
-	all->image_n.img = mlx_xpm_file_to_image(all->win.mlx, all->image_n.path,
-			&all->image_n.img_width, &all->image_n.img_height);
 	all->image_n.addr = mlx_get_data_addr(all->image_n.img, &all->image_n.bpp,
 			&all->image_n.line_len, &all->image_n.end);
-	all->image_w.img = mlx_xpm_file_to_image(all->win.mlx, all->image_w.path,
-			&all->image_w.img_width, &all->image_w.img_height);
 	all->image_w.addr = mlx_get_data_addr(all->image_w.img, &all->image_w.bpp,
 			&all->image_w.line_len, &all->image_w.end);
-	all->sprite.img = mlx_xpm_file_to_image(all->win.mlx, all->sprite.path,
-			&all->sprite.img_width, &all->sprite.img_height);
 	all->sprite.addr = mlx_get_data_addr(all->sprite.img, &all->sprite.bpp,
 			&all->sprite.line_len, &all->sprite.end);
+	return (1);
+}
+
+int		exit_after_check_cub(t_all *all, int argc, int fd)
+{
+	if (check_cub(all, argc)[0] != '1')
+	{
+		close(fd);
+		fill_header(all);
+		printf("Error\n%s", check_cub(all, argc));
+		return (0);
+	}
+	return (1);
 }
 
 int		main(int argc, char **argv)
@@ -78,14 +105,10 @@ int		main(int argc, char **argv)
 	all.map = parcer(fd);
 	all.win.mlx = mlx_init();
 	fill_header(&all);
-	if (check_cub(&all)[0] != '1')
-	{
-		close(fd);
-		fill_header(&all);
-		printf("Error\n%s", check_cub(&all));
+	if (exit_after_check_cub(&all, argc, fd) == 0)
 		return (0);
-	}
-	do_images(&all);
+	if (do_images(&all) == 0)
+		return (0);
 	fill_map_on_screen(&all);
 	cast_ray(&all);
 	mlx_put_image_to_window(all.win.mlx, all.win.win, all.win.img, 0, 0);
